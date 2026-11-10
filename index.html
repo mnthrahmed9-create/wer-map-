@@ -85,6 +85,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   70%{box-shadow:0 0 0 8px rgba(122,154,90,0)}
   100%{box-shadow:0 0 0 0 rgba(122,154,90,0)}}
 
+/* NEW: Clock widget */
+#clock{background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);padding:8px 14px;box-shadow:var(--shadow);
+  pointer-events:auto;flex-shrink:0;text-align:center;min-width:88px}
+#clock-time{font-size:16px;font-weight:700;color:var(--accent-2);
+  font-variant-numeric:tabular-nums;letter-spacing:1px;line-height:1.2;direction:ltr}
+#clock-date{font-size:10px;color:var(--text-3);margin-top:1px}
+
 /* Sidebar */
 #sidebar{position:absolute;left:12px;top:82px;bottom:12px;
   width:min(280px,78vw);background:var(--panel);border:1px solid var(--panel-border);
@@ -93,7 +101,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   transition:transform .3s ease,opacity .3s ease}
 #sidebar.hidden{transform:translateX(-110%);opacity:0;pointer-events:none}
 #sidebar h3{margin:4px 0 10px;font-size:13px;font-weight:700;
-  color:var(--accent-2);display:flex;justify-content:space-between}
+  color:var(--accent-2);display:flex;justify-content:space-between;align-items:center}
 #sidebar h3 span{color:var(--text-3);font-weight:500;font-size:11px}
 #prov-list{overflow-y:auto;flex:1}
 #prov-list::-webkit-scrollbar{width:6px}
@@ -107,6 +115,16 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .prov-item .dot-mini{width:10px;height:10px;border-radius:50%;
   background:var(--accent);flex-shrink:0;opacity:.55}
 .prov-item.active .dot-mini{opacity:1}
+
+/* NEW: Sidebar close button */
+#sidebar h3 .sidebar-close{width:24px;height:24px;background:var(--accent-light);
+  border:1px solid transparent;border-radius:6px;cursor:pointer;
+  color:var(--accent-2);font-size:11px;font-weight:700;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s,border-color .15s,transform .1s;
+  padding:0;flex-shrink:0;font-family:inherit;margin-inline-start:6px}
+#sidebar h3 .sidebar-close:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+#sidebar h3 .sidebar-close:active{transform:scale(.9)}
 
 /* Info panel */
 #panel{position:absolute;right:12px;top:82px;bottom:12px;
@@ -175,6 +193,85 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   border:3px solid #fff;border-radius:50% 50% 50% 0;
   transform:rotate(-45deg);box-shadow:0 2px 12px rgba(184,90,90,.5)}
 
+/* NEW: Compass */
+#compass{position:absolute;bottom:150px;right:20px;width:60px;height:60px;
+  border-radius:50%;background:var(--panel);border:1px solid var(--panel-border);
+  box-shadow:var(--shadow);z-index:16;cursor:pointer;
+  transition:transform .15s,box-shadow .15s}
+#compass:hover{box-shadow:var(--shadow-lg);transform:scale(1.05)}
+#compass:active{transform:scale(.95)}
+#compass-needle{position:absolute;top:50%;left:50%;width:3px;height:22px;
+  background:linear-gradient(to bottom,var(--danger) 50%,var(--text-3) 50%);
+  transform-origin:center bottom;
+  transform:translate(-50%,-100%) rotate(0deg);
+  border-radius:2px;transition:transform .08s linear;
+  box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#compass-center{position:absolute;top:50%;left:50%;width:6px;height:6px;
+  background:var(--accent-2);border:1px solid #fff;border-radius:50%;
+  transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.compass-n,.compass-e,.compass-s,.compass-w{position:absolute;
+  font-size:9px;font-weight:700;color:var(--text-3);line-height:1;
+  font-family:serif;pointer-events:none}
+.compass-n{top:3px;left:50%;transform:translateX(-50%);color:var(--danger)}
+.compass-s{bottom:3px;left:50%;transform:translateX(-50%)}
+.compass-e{right:4px;top:50%;transform:translateY(-50%)}
+.compass-w{left:4px;top:50%;transform:translateY(-50%)}
+
+/* NEW: Zoom display */
+#zoom-display{position:absolute;bottom:220px;right:20px;
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:999px;padding:4px 10px;font-size:10px;font-weight:600;
+  color:var(--accent-2);box-shadow:var(--shadow);z-index:16;
+  direction:ltr;font-variant-numeric:tabular-nums;
+  transition:opacity .3s;pointer-events:none;letter-spacing:.5px}
+
+/* NEW: Province tooltip */
+#prov-tooltip{position:fixed;display:none;z-index:60;pointer-events:none;
+  background:var(--accent-2);color:#fff;padding:6px 12px;border-radius:8px;
+  font-size:12px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);
+  white-space:nowrap;transform:translate(0,0);
+  animation:tooltipIn .15s ease}
+@keyframes tooltipIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* NEW: Welcome card */
+#welcome-card{position:absolute;inset:0;z-index:80;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(44,44,44,.35);backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);animation:fadeIn .4s ease}
+#welcome-card.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.welcome-inner{background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:16px;padding:32px 28px 24px;max-width:440px;width:90%;
+  box-shadow:var(--shadow-lg);text-align:center;
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:none}}
+.welcome-icon{font-size:44px;margin-bottom:8px;display:inline-block;
+  animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.welcome-inner h2{margin:0 0 8px;font-size:22px;font-weight:700;
+  color:var(--accent-2)}
+.welcome-inner>p{margin:0 0 18px;font-size:13px;color:var(--text-2);line-height:1.7}
+.welcome-tips{list-style:none;padding:0;margin:0 0 22px;text-align:right;
+  background:var(--accent-light);border-radius:var(--radius-sm);padding:12px 16px}
+.welcome-tips li{font-size:12px;color:var(--text-2);padding:5px 0;line-height:1.6}
+#welcome-start{padding:12px 32px;background:var(--accent);color:#fff;
+  border:0;border-radius:var(--radius);font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+  box-shadow:0 4px 12px rgba(90,143,168,.35)}
+#welcome-start:hover{background:var(--accent-2);
+  box-shadow:0 6px 20px rgba(90,143,168,.5);transform:translateY(-1px)}
+#welcome-start:active{transform:translateY(0)}
+
+/* Measure hint */
+#measure-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--accent-2);color:#fff;padding:10px 20px;border-radius:var(--radius);
+  font-size:13px;font-weight:600;z-index:25;box-shadow:var(--shadow-lg);
+  display:none;pointer-events:none;animation:pulseHint 1.8s infinite}
+#measure-hint.show{display:block}
+@keyframes pulseHint{0%,100%{box-shadow:0 0 0 0 rgba(61,111,136,.6)}
+  50%{box-shadow:0 0 0 12px rgba(61,111,136,0)}}
+
 /* Mobile */
 @media(max-width:720px){
   #header{flex-wrap:wrap;gap:8px}
@@ -189,6 +286,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   .brand{padding:8px 12px}
   .brand strong{font-size:13px}
   .brand small{font-size:10px}
+  #clock{padding:6px 10px;min-width:72px}
+  #clock-time{font-size:14px}
+  #clock-date{font-size:9px}
+  #compass{width:50px;height:50px;bottom:130px;right:14px}
+  #zoom-display{bottom:190px;right:14px;font-size:9px}
+  .welcome-inner{padding:24px 20px 18px}
+  .welcome-inner h2{font-size:19px}
 }
 </style>
 </head>
@@ -218,10 +322,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     <span class="dot"></span>
     <span id="status-text">جاري التحميل...</span>
   </div>
+  <div id="clock">
+    <div id="clock-time">--:--</div>
+    <div id="clock-date">بغداد</div>
+  </div>
 </div>
 
 <aside id="sidebar">
-  <h3>محافظات العراق <span id="prov-count"></span></h3>
+  <h3>محافظات العراق <span id="prov-count"></span> <button class="sidebar-close" id="close-sidebar" aria-label="إغلاق القائمة" title="إغلاق القائمة">✕</button></h3>
   <div id="prov-list"></div>
 </aside>
 
@@ -256,6 +364,39 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   <div class="tool-group">
     <button class="tool" id="btn-sidebar">📋 القائمة</button>
     <button class="tool" id="btn-route">🧭 مسار</button>
+    <button class="tool" id="btn-measure">📏 قياس</button>
+    <button class="tool" id="btn-tour">🎲 جولة</button>
+    <button class="tool" id="btn-screenshot">📸 صورة</button>
+  </div>
+</div>
+
+<div id="compass" title="اضغط لإعادة الشمال للأعلى">
+  <div id="compass-needle"></div>
+  <div id="compass-center"></div>
+  <div class="compass-n">N</div>
+  <div class="compass-e">E</div>
+  <div class="compass-s">S</div>
+  <div class="compass-w">W</div>
+</div>
+
+<div id="zoom-display">z 5.5</div>
+
+<div id="prov-tooltip"></div>
+
+<div id="measure-hint">📏 انقر على نقطة البداية</div>
+
+<div id="welcome-card">
+  <div class="welcome-inner">
+    <div class="welcome-icon">🗺️</div>
+    <h2 id="welcome-title">مرحباً بك</h2>
+    <p>استكشف محافظات العراق الثمانية عشر بخريطة ثلاثية الأبعاد تفاعلية، صُمّمت لتنقل أسهل وأوضح.</p>
+    <ul class="welcome-tips">
+      <li>👆 انقر على أي محافظة لعرض تفاصيلها الكاملة</li>
+      <li>🔍 استخدم شريط البحث للعثور على أي مكان</li>
+      <li>📍 اضغط «موقعي» ثم «مسار» لحساب الطريق</li>
+      <li>🎲 جرّب «جولة» لاستكشاف المحافظات تلقائياً</li>
+    </ul>
+    <button id="welcome-start">ابدأ الاستكشاف</button>
   </div>
 </div>
 
@@ -418,6 +559,16 @@ function norm(s) {
 }
 function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString('en-US'); }
 
+function haversine(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLon = (b.lng - a.lng) * Math.PI / 180;
+  const lat1 = a.lat * Math.PI / 180;
+  const lat2 = b.lat * Math.PI / 180;
+  const x = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
 /* ============================================================
    4. PROVINCES DATA
    ============================================================ */
@@ -466,7 +617,11 @@ const state = {
   lastBuildingBBox: null,
   lastRoadBBox: null,
   buildingsVisible: false,
-  routeMode: false
+  routeMode: false,
+  measureMode: false,
+  measureStart: null,
+  measureMarkers: [],
+  tourActive: false
 };
 
 /* ============================================================
@@ -495,10 +650,6 @@ function buildFallbackStyle() {
   };
 }
 
-/**
- * Applies the calm light theme to a vector style in-place.
- * Uses source-layer names from the OpenMapTiles schema (used by Liberty).
- */
 function applyCalmTheme(map) {
   if (!map) return;
   const style = map.getStyle();
@@ -513,13 +664,10 @@ function applyCalmTheme(map) {
     const type = layer.type;
 
     try {
-      // Background
       if (type === 'background') {
         set(id, 'background-color', T.land);
         return;
       }
-
-      // Water polygons
       if (sl === 'water' && type === 'fill') {
         set(id, 'fill-color', T.water);
         set(id, 'fill-opacity', 0.92);
@@ -534,8 +682,6 @@ function applyCalmTheme(map) {
         set(id, 'line-opacity', 0.9);
         return;
       }
-
-      // Parks / green
       if ((sl === 'park' || sl === 'landcover' || sl === 'landuse') && type === 'fill') {
         const isGreen = sl === 'park' || /grass|forest|wood|park|meadow|scrub/i.test(id + ' ' + sl);
         if (isGreen) {
@@ -547,16 +693,12 @@ function applyCalmTheme(map) {
         }
         return;
       }
-
-      // Buildings — subtle base footprint (3D buildings overlay this)
       if (sl === 'building' && type === 'fill') {
         set(id, 'fill-color', T.building.light);
         set(id, 'fill-opacity', 0.55);
         set(id, 'fill-outline-color', 'rgba(200,185,160,0.5)');
         return;
       }
-
-      // Roads
       if (sl === 'transportation' && type === 'line') {
         if (/casing|outline|bridge.casing|tunnel.casing/i.test(id)) {
           set(id, 'line-color', T.road.casing);
@@ -582,8 +724,6 @@ function applyCalmTheme(map) {
         set(id, 'line-opacity', 0.98);
         return;
       }
-
-      // Bridges / tunnels
       if (sl === 'transportation' && type === 'line' && /bridge/i.test(id)) {
         set(id, 'line-color', '#fdfdfb');
         return;
@@ -593,26 +733,20 @@ function applyCalmTheme(map) {
         set(id, 'line-dasharray', [2, 1]);
         return;
       }
-
-      // Boundaries
       if (sl === 'boundary' && type === 'line') {
         set(id, 'line-color', T.boundary);
         set(id, 'line-opacity', 0.8);
         return;
       }
-
-      // All labels
       if (type === 'symbol') {
         try { map.setPaintProperty(id, 'text-color', T.text); } catch (e) {}
         try { map.setPaintProperty(id, 'text-halo-color', T.textHalo); } catch (e) {}
         try { map.setPaintProperty(id, 'text-halo-width', 1.4); } catch (e) {}
         try { map.setPaintProperty(id, 'text-halo-blur', 0.4); } catch (e) {}
-        // Road names get a slightly lighter style
         if (sl === 'transportation_name') {
           try { map.setPaintProperty(id, 'text-color', T.textSecondary); } catch (e) {}
           try { map.setPaintProperty(id, 'text-size', ['interpolate', ['linear'], ['zoom'], 14, 9, 18, 12]); } catch (e) {}
         }
-        // Force Arabic name when available
         try {
           const tf = layer.layout && layer.layout['text-field'];
           if (tf && JSON.stringify(tf).includes('"name"') && !JSON.stringify(tf).includes('"name:ar"')) {
@@ -623,7 +757,6 @@ function applyCalmTheme(map) {
     } catch (e) { /* ignore individual layer errors */ }
   });
 
-  // Sky + light
   try {
     map.setLight({
       anchor: 'viewport',
@@ -682,7 +815,7 @@ async function initMap() {
       maxBounds: [[36, 27], [51, 39]],
       antialias: true,
       attributionControl: false,
-      preserveDrawingBuffer: false,
+      preserveDrawingBuffer: true, /* enabled for screenshot feature */
       fadeDuration: 200
     });
   } catch (err) {
@@ -707,6 +840,18 @@ async function initMap() {
     try { applyCalmTheme(map); } catch (e) {}
   });
 
+  // NEW: compass + zoom sync
+  map.on('rotate', () => {
+    const bearing = map.getBearing();
+    const needle = $('compass-needle');
+    if (needle) needle.style.transform = `translate(-50%,-100%) rotate(${-bearing}deg)`;
+  });
+  map.on('zoom', () => {
+    const z = $('zoom-display');
+    if (z) z.textContent = 'z ' + map.getZoom().toFixed(1);
+  });
+  map.on('pitch', () => { /* no-op for now */ });
+
   map.on('load', () => {
     state.ready = true;
     progress(45, 'جاري إعداد التضاريس...');
@@ -728,6 +873,18 @@ async function initMap() {
 
     // Re-apply theme after tiles settle
     setTimeout(() => { try { applyCalmTheme(map); } catch (e) {} }, 2500);
+
+    // NEW: show welcome card after loading
+    setTimeout(() => {
+      const wc = $('welcome-card');
+      if (wc) wc.classList.add('show');
+      const wt = $('welcome-title');
+      if (wt) wt.textContent = getGreeting() + ' — أهلاً بك';
+    }, 700);
+
+    // Initialize compass needle
+    $('compass-needle').style.transform = 'translate(-50%,-100%) rotate(0deg)';
+    $('zoom-display').textContent = 'z ' + map.getZoom().toFixed(1);
   });
 
   // Move handlers
@@ -739,6 +896,15 @@ async function initMap() {
   }, CONFIG.debounceMove));
 
   map.on('click', e => {
+    // NEW: stop tour if active
+    if (state.tourActive) { stopTour(); toast('⏸️ توقفت الجولة'); return; }
+
+    // NEW: measure mode
+    if (state.measureMode) {
+      handleMeasureClick(e.lngLat);
+      return;
+    }
+
     if (state.routeMode) {
       state.routeMode = false;
       map.getCanvas().style.cursor = '';
@@ -746,7 +912,7 @@ async function initMap() {
       setDestination(e.lngLat.lng, e.lngLat.lat);
       return;
     }
-    // Deselect province if click on empty area
+
     const hits = map.queryRenderedFeatures(e.point, { layers: ['province-3d'].filter(id => map.getLayer(id)) });
     if (!hits.length) deselectProvince();
   });
@@ -789,7 +955,6 @@ function setupTerrain() {
 function initProvinces() {
   const map = state.map;
 
-  // Load province boundaries from Overpass
   (async () => {
     try {
       const query = `[out:json][timeout:25];
@@ -821,7 +986,6 @@ function buildProvinceLayersFromGeoJSON(gj) {
 
   if (!features.length) { buildProvinceMarkers(); return; }
 
-  // Match each feature to our known province data by name
   const merged = features.map((f, i) => {
     const tags = (f.properties && f.properties.tags) || {};
     const rawName = tags['name:ar'] || tags.name || tags['name:en'] || ('محافظة ' + (i + 1));
@@ -847,13 +1011,11 @@ function buildProvinceLayersFromGeoJSON(gj) {
     };
   });
 
-  // Store for reference
   window.__PROVINCE_FEATURES = merged;
 
   const fc = { type: 'FeatureCollection', features: merged };
   map.addSource('provinces', { type: 'geojson', data: fc });
 
-  // Subtle borders only — no neon 3D fill for provinces
   map.addLayer({
     id: 'province-border',
     type: 'line',
@@ -865,7 +1027,6 @@ function buildProvinceLayersFromGeoJSON(gj) {
     }
   });
 
-  // Soft inner highlight on hover/select
   map.addLayer({
     id: 'province-highlight',
     type: 'line',
@@ -883,17 +1044,30 @@ function buildProvinceLayersFromGeoJSON(gj) {
     }
   });
 
-  // Click handling
+  // NEW: tooltip element
+  const tooltip = $('prov-tooltip');
+
   map.on('mousemove', 'province-border', e => {
     map.getCanvas().style.cursor = 'pointer';
     if (!e.features || !e.features.length) return;
     const id = e.features[0].id;
-    if (state.hoveredIdx === id) return;
-    if (state.hoveredIdx !== null) {
-      try { map.setFeatureState({ source: 'provinces', id: state.hoveredIdx }, { hover: false }); } catch (err) {}
+    if (state.hoveredIdx !== id) {
+      if (state.hoveredIdx !== null) {
+        try { map.setFeatureState({ source: 'provinces', id: state.hoveredIdx }, { hover: false }); } catch (err) {}
+      }
+      state.hoveredIdx = id;
+      try { map.setFeatureState({ source: 'provinces', id }, { hover: true }); } catch (err) {}
     }
-    state.hoveredIdx = id;
-    try { map.setFeatureState({ source: 'provinces', id }, { hover: true }); } catch (err) {}
+    // NEW: update tooltip content
+    if (tooltip) {
+      const name = e.features[0].properties && e.features[0].properties.name;
+      tooltip.textContent = name || '';
+      if (e.originalEvent) {
+        tooltip.style.left = (e.originalEvent.clientX + 14) + 'px';
+        tooltip.style.top = (e.originalEvent.clientY + 14) + 'px';
+      }
+      tooltip.style.display = 'block';
+    }
   });
   map.on('mouseleave', 'province-border', () => {
     map.getCanvas().style.cursor = '';
@@ -901,13 +1075,13 @@ function buildProvinceLayersFromGeoJSON(gj) {
       try { map.setFeatureState({ source: 'provinces', id: state.hoveredIdx }, { hover: false }); } catch (err) {}
       state.hoveredIdx = null;
     }
+    if (tooltip) tooltip.style.display = 'none';
   });
   map.on('click', 'province-border', e => {
     if (!e.features || !e.features.length) return;
     selectProvince(Number(e.features[0].id));
   });
 
-  // Create province markers (labels)
   buildProvinceMarkers();
 }
 
@@ -943,8 +1117,15 @@ function renderProvinceList() {
     const row = document.createElement('div');
     row.className = 'prov-item';
     row.dataset.idx = idx;
-    row.innerHTML = '<span class="dot-mini"></span><span>' + p.ar + '</span>';
+    row.innerHTML = '<span class="dot-mini"></span><span><bdi>' + p.ar + '</bdi></span>';
     row.addEventListener('click', () => selectProvince(idx));
+    // NEW: hover highlights province on map
+    row.addEventListener('mouseenter', () => {
+      try { state.map.setFeatureState({ source: 'provinces', id: idx }, { hover: true }); } catch (e) {}
+    });
+    row.addEventListener('mouseleave', () => {
+      try { state.map.setFeatureState({ source: 'provinces', id: idx }, { hover: false }); } catch (e) {}
+    });
     box.appendChild(row);
   });
   const cnt = $('prov-count');
@@ -962,12 +1143,10 @@ function selectProvince(idx) {
   state.selectedIdx = idx;
   try { map.setFeatureState({ source: 'provinces', id: idx }, { selected: true }); } catch (e) {}
 
-  // Update sidebar
   document.querySelectorAll('.prov-item').forEach(el => {
     el.classList.toggle('active', Number(el.dataset.idx) === idx);
   });
 
-  // Fill panel
   $('p-name').textContent = p.ar;
   $('p-en').textContent = p.en.toUpperCase();
   $('p-info').textContent = p.note;
@@ -982,26 +1161,29 @@ function selectProvince(idx) {
   ].forEach(([label, val]) => {
     const d = document.createElement('div');
     d.className = 'stat';
-    d.innerHTML = '<span>' + label + '</span><b>' + val + '</b>';
+    d.innerHTML = '<span>' + label + '</span><b><bdi>' + val + '</bdi></b>';
     grid.appendChild(d);
   });
 
   const admin = $('p-admin');
   admin.innerHTML = '';
   [
-    ['الاسم العربي', p.ar],
-    ['الاسم الإنجليزي', p.en],
-    ['المركز الإداري', p.cap],
-    ['الإحداثيات', p.c[1].toFixed(3) + '°N, ' + p.c[0].toFixed(3) + '°E']
-  ].forEach(([k, v]) => {
+    ['الاسم العربي', p.ar, false],
+    ['الاسم الإنجليزي', p.en, false],
+    ['المركز الإداري', p.cap, false],
+    ['الإحداثيات', p.c[1].toFixed(3) + '°N, ' + p.c[0].toFixed(3) + '°E', true]
+  ].forEach(([k, v, ltr]) => {
     const el = document.createElement('p');
-    el.textContent = k + ': ' + v;
+    el.appendChild(document.createTextNode(k + ': '));
+    const val = document.createElement('bdi');
+    if (ltr) val.setAttribute('dir', 'ltr');
+    val.textContent = String(v == null ? '' : v);
+    el.appendChild(val);
     admin.appendChild(el);
   });
 
   $('panel').classList.add('show');
 
-  // Fly to province
   map.flyTo({
     center: p.c, zoom: 7.8, pitch: 55, bearing: 0, duration: 1400
   });
@@ -1016,12 +1198,11 @@ function deselectProvince() {
 }
 
 /* ============================================================
-   9. 3D BUILDINGS (progressive, from Overpass)
+   9. 3D BUILDINGS
    ============================================================ */
 function ensureBuilding3DLayer() {
   const map = state.map;
   if (!map || map.getLayer('building-3d')) return;
-  // The actual source will be added on first load
 }
 
 async function loadBuildingsForViewport(silent) {
@@ -1059,7 +1240,7 @@ async function loadBuildingsForViewport(silent) {
   if (!silent) toast('🏢 جاري تحميل المباني...', 8000);
 
   const data = await fetchOverpass(query, 15000);
-  if (myReq !== state.buildingRequestId) return; // stale
+  if (myReq !== state.buildingRequestId) return;
 
   if (!data || !data.elements || !data.elements.length) {
     if (!silent) toast('لا توجد مبانٍ في هذه المنطقة');
@@ -1077,7 +1258,6 @@ async function loadBuildingsForViewport(silent) {
 
     if (!features.length) return;
 
-    // Process height + color
     features.forEach(f => {
       const tags = (f.properties && f.properties.tags) || f.properties || {};
       const rawH = parseFloat(tags.height);
@@ -1107,7 +1287,6 @@ async function loadBuildingsForViewport(silent) {
       else if (Number.isFinite(rawMinL)) base = rawMinL * 3.2;
       f.properties._base = Math.max(0, Math.min(h - 0.5, base));
 
-      // Color based on type + height
       const type = String(tags.building || 'yes').toLowerCase();
       let color;
       if (/residential|house|apartments|dormitory/.test(type)) color = '#e8dcc8';
@@ -1120,7 +1299,6 @@ async function loadBuildingsForViewport(silent) {
       f.properties._color = color;
     });
 
-    // Merge with existing data if same viewport, else replace
     const fc = { type: 'FeatureCollection', features };
 
     if (map.getSource('buildings')) {
@@ -1128,7 +1306,6 @@ async function loadBuildingsForViewport(silent) {
     } else {
       map.addSource('buildings', { type: 'geojson', data: fc });
 
-      // Insert just before the first symbol layer so labels stay on top
       const layers = map.getStyle().layers;
       const firstSymbol = layers.find(l => l.type === 'symbol');
       const beforeId = firstSymbol ? firstSymbol.id : undefined;
@@ -1153,7 +1330,6 @@ async function loadBuildingsForViewport(silent) {
         map.addLayer(buildingLayer);
       }
 
-      // Subtle roof highlight line for crisper silhouettes
       const roofLayer = {
         id: 'building-roof-edge',
         type: 'line',
@@ -1172,7 +1348,6 @@ async function loadBuildingsForViewport(silent) {
     state.lastBuildingBBox = bboxKey;
     state.buildingsVisible = true;
 
-    // Show/hide based on toggle
     if (!state.buildingsActive) {
       try { map.setLayoutProperty('building-3d', 'visibility', 'none'); } catch (e) {}
       try { map.setLayoutProperty('building-roof-edge', 'visibility', 'none'); } catch (e) {}
@@ -1195,7 +1370,7 @@ function clearBuildings() {
 }
 
 /* ============================================================
-   10. ROADS (enhanced from Overpass, with bridges/tunnels)
+   10. ROADS
    ============================================================ */
 async function loadRoadsForViewport(silent) {
   const map = state.map;
@@ -1247,7 +1422,6 @@ async function loadRoadsForViewport(silent) {
     );
     if (!features.length) return;
 
-    // Classify features
     features.forEach(f => {
       const tags = f.properties || {};
       const hw = tags.highway || '';
@@ -1273,11 +1447,8 @@ async function loadRoadsForViewport(silent) {
       const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
       const beforeId = firstSymbol ? firstSymbol.id : undefined;
 
-      // Sidewalks (thin, light)
       addLayerSafe({
-        id: 'roads-sidewalks',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-sidewalks', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['==', ['get', '_class'], 'sidewalk'],
         paint: {
@@ -1287,26 +1458,18 @@ async function loadRoadsForViewport(silent) {
         }
       }, beforeId);
 
-      // Tunnels (dashed)
       addLayerSafe({
-        id: 'roads-tunnels',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-tunnels', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['==', ['get', '_class'], 'tunnel'],
         paint: {
-          'line-color': '#c8bfa8',
-          'line-width': 2,
-          'line-dasharray': [2, 2],
-          'line-opacity': 0.8
+          'line-color': '#c8bfa8', 'line-width': 2,
+          'line-dasharray': [2, 2], 'line-opacity': 0.8
         }
       }, beforeId);
 
-      // Regular roads by class
       addLayerSafe({
-        id: 'roads-minor',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-minor', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['match', ['get', '_class'],
           ['service', 'residential', 'living_street', 'unclassified', 'pedestrian'], true, false],
@@ -1318,9 +1481,7 @@ async function loadRoadsForViewport(silent) {
       }, beforeId);
 
       addLayerSafe({
-        id: 'roads-mid',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-mid', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['match', ['get', '_class'], ['tertiary', 'secondary'], true, false],
         paint: {
@@ -1331,9 +1492,7 @@ async function loadRoadsForViewport(silent) {
       }, beforeId);
 
       addLayerSafe({
-        id: 'roads-major',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-major', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad - 1,
         filter: ['match', ['get', '_class'], ['primary', 'trunk', 'motorway'], true, false],
         paint: {
@@ -1343,32 +1502,22 @@ async function loadRoadsForViewport(silent) {
         }
       }, beforeId);
 
-      // Bridges (highlight)
       addLayerSafe({
-        id: 'roads-bridges',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-bridges', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['==', ['get', '_class'], 'bridge'],
         paint: {
-          'line-color': '#ffffff',
-          'line-width': 3.5,
-          'line-opacity': 1,
-          'line-blur': 0.3
+          'line-color': '#ffffff', 'line-width': 3.5,
+          'line-opacity': 1, 'line-blur': 0.3
         }
       }, beforeId);
 
-      // Roundabouts
       addLayerSafe({
-        id: 'roads-roundabouts',
-        type: 'line',
-        source: 'roads',
+        id: 'roads-roundabouts', type: 'line', source: 'roads',
         minzoom: CONFIG.minZoomRoad,
         filter: ['==', ['get', '_class'], 'roundabout'],
         paint: {
-          'line-color': '#ffffff',
-          'line-width': 2.5,
-          'line-opacity': 1
+          'line-color': '#ffffff', 'line-width': 2.5, 'line-opacity': 1
         }
       }, beforeId);
     }
@@ -1392,7 +1541,7 @@ function addLayerSafe(layer, beforeId) {
 }
 
 /* ============================================================
-   11. WATER & PARKS (extra detail from Overpass, only if zoomed)
+   11. WATER & PARKS
    ============================================================ */
 async function loadWaterForViewport(silent) {
   const map = state.map;
@@ -1521,10 +1670,7 @@ function toggleBaseLayerPattern(active, patterns) {
 }
 
 function applyToggles() {
-  // Buildings
   toggleLayerGroup(state.buildingsActive, ['building-3d', 'building-roof-edge']);
-
-  // Roads
   toggleLayerGroup(state.roadsActive, [
     'roads-sidewalks', 'roads-tunnels', 'roads-minor',
     'roads-mid', 'roads-major', 'roads-bridges', 'roads-roundabouts'
@@ -1534,16 +1680,11 @@ function applyToggles() {
   } else {
     toggleBaseLayerPattern(true, [/transportation/, /road/]);
   }
-
-  // Water
   toggleLayerGroup(state.waterActive, ['water-detail-fill', 'water-detail-line']);
   toggleBaseLayerPattern(state.waterActive, [/water/, /waterway/]);
-
-  // Parks
   toggleLayerGroup(state.parksActive, ['parks-detail-fill']);
   toggleBaseLayerPattern(state.parksActive, [/park/, /grass/, /forest/, /landcover/]);
 
-  // Labels
   const map = state.map;
   if (map && map.getStyle().layers) {
     map.getStyle().layers.forEach(layer => {
@@ -1552,7 +1693,6 @@ function applyToggles() {
       }
     });
   }
-  // Also toggle our custom province markers
   PROVINCES_DATA.forEach(p => {
     if (p.marker) {
       const el = p.marker.getElement();
@@ -1580,7 +1720,6 @@ function locateUser() {
       const map = state.map;
       map.flyTo({ center: [lng, lat], zoom: 16, pitch: 55, bearing: 0, duration: 1600 });
 
-      // User marker
       if (state.userMarker) state.userMarker.remove();
       const el = document.createElement('div');
       el.className = 'user-marker';
@@ -1588,7 +1727,6 @@ function locateUser() {
       state.userMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
         .setLngLat([lng, lat]).addTo(map);
 
-      // Accuracy circle
       try {
         if (map.getLayer('user-accuracy')) map.removeLayer('user-accuracy');
         if (map.getSource('user-accuracy')) map.removeSource('user-accuracy');
@@ -1626,7 +1764,7 @@ function locateUser() {
 }
 
 /* ============================================================
-   14. ROUTING
+   14. ROUTING (with glow effect)
    ============================================================ */
 async function setDestination(lng, lat) {
   state.destination = [lng, lat];
@@ -1659,9 +1797,10 @@ async function requestRoute(from, to) {
 
     const route = json.routes[0];
 
-    // Clear old
     state.routeSources.forEach(id => {
       try { if (state.map.getLayer(id + '-line')) state.map.removeLayer(id + '-line'); } catch (e) {}
+      try { if (state.map.getLayer(id + '-casing')) state.map.removeLayer(id + '-casing'); } catch (e) {}
+      try { if (state.map.getLayer(id + '-glow')) state.map.removeLayer(id + '-glow'); } catch (e) {}
       try { if (state.map.getSource(id)) state.map.removeSource(id); } catch (e) {}
     });
     state.routeSources = [];
@@ -1672,9 +1811,20 @@ async function requestRoute(from, to) {
       data: { type: 'Feature', geometry: route.geometry, properties: {} }
     });
 
-    // Route casing + line
     const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
     const beforeId = firstSymbol ? firstSymbol.id : undefined;
+
+    // NEW: glow layer beneath
+    addLayerSafe({
+      id: 'route-main-glow', type: 'line', source: 'route-main',
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: {
+        'line-color': T.accent,
+        'line-width': 18,
+        'line-opacity': 0.22,
+        'line-blur': 10
+      }
+    }, beforeId);
 
     addLayerSafe({
       id: 'route-main-casing', type: 'line', source: 'route-main',
@@ -1702,7 +1852,6 @@ async function requestRoute(from, to) {
     const min = Math.round(route.duration / 60);
     toast('✨ المسار: ' + km + ' كم — ' + min + ' دقيقة', 5000);
 
-    // Fit to route
     const coords = route.geometry.coordinates;
     let minX = 180, minY = 90, maxX = -180, maxY = -90;
     coords.forEach(([x, y]) => {
@@ -1724,6 +1873,7 @@ function clearRoute() {
   state.routeSources.forEach(id => {
     try { if (map.getLayer(id + '-line')) map.removeLayer(id + '-line'); } catch (e) {}
     try { if (map.getLayer(id + '-casing')) map.removeLayer(id + '-casing'); } catch (e) {}
+    try { if (map.getLayer(id + '-glow')) map.removeLayer(id + '-glow'); } catch (e) {}
     try { if (map.getSource(id)) map.removeSource(id); } catch (e) {}
   });
   state.routeSources = [];
@@ -1733,7 +1883,7 @@ function clearRoute() {
 }
 
 /* ============================================================
-   15. SEARCH (Nominatim)
+   15. SEARCH (Nominatim) — bdi fixed
    ============================================================ */
 const searchInput = $('search');
 const searchResults = $('search-results');
@@ -1771,9 +1921,9 @@ const runSearch = debounce(async () => {
       const row = document.createElement('div');
       row.className = 'search-result';
       const type = (item.type || item.class || '').replace(/_/g, ' ');
-      row.innerHTML = '<div class="name">' + (item.display_name.split(',')[0]) + '</div>' +
-                      '<div class="type">' + type + ' — ' +
-                      (item.display_name.split(',').slice(1, 3).join(',').trim() || '') + '</div>';
+      row.innerHTML = '<div class="name"><bdi>' + (item.display_name.split(',')[0]) + '</bdi></div>' +
+                      '<div class="type"><bdi>' + type + '</bdi> — <bdi>' +
+                      (item.display_name.split(',').slice(1, 3).join(',').trim() || '') + '</bdi></div>';
       row.addEventListener('click', () => {
         const lng = parseFloat(item.lon);
         const lat = parseFloat(item.lat);
@@ -1781,7 +1931,6 @@ const runSearch = debounce(async () => {
         searchResults.classList.remove('show');
         searchInput.value = item.display_name.split(',')[0];
 
-        // Small marker
         if (window.__searchMarker) window.__searchMarker.remove();
         const el = document.createElement('div');
         el.className = 'dest-marker';
@@ -1810,13 +1959,256 @@ if (searchInput) {
 }
 
 /* ============================================================
-   16. UI HANDLERS
+   16. NEW: CLOCK + GREETING
+   ============================================================ */
+function updateClock() {
+  try {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', {
+      timeZone: 'Asia/Baghdad', hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    const dateStr = now.toLocaleDateString('ar-IQ', {
+      timeZone: 'Asia/Baghdad', weekday: 'short', day: 'numeric', month: 'short'
+    });
+    const tEl = $('clock-time'); if (tEl) tEl.textContent = timeStr;
+    const dEl = $('clock-date'); if (dEl) dEl.textContent = dateStr;
+  } catch (e) { /* fallback no-op */ }
+}
+
+function getGreeting() {
+  try {
+    const hour = parseInt(new Date().toLocaleString('en-GB', {
+      timeZone: 'Asia/Baghdad', hour: 'numeric', hour12: false
+    }), 10);
+    if (hour >= 5 && hour < 12) return 'صباح الخير ☀️';
+    if (hour >= 12 && hour < 17) return 'طاب يومك 🌤️';
+    if (hour >= 17 && hour < 21) return 'مساء الخير 🌆';
+    return 'ليلة سعيدة 🌙';
+  } catch (e) { return 'مرحباً'; }
+}
+
+/* ============================================================
+   17. NEW: MEASURE DISTANCE
+   ============================================================ */
+function toggleMeasure() {
+  state.measureMode = !state.measureMode;
+  const btn = $('btn-measure');
+  if (state.measureMode) {
+    btn.classList.add('on');
+    state.map.getCanvas().style.cursor = 'crosshair';
+    $('measure-hint').classList.add('show');
+    $('measure-hint').textContent = '📏 انقر على نقطة البداية';
+    toast('📏 اختر نقطة البداية على الخريطة');
+  } else {
+    btn.classList.remove('on');
+    state.map.getCanvas().style.cursor = '';
+    $('measure-hint').classList.remove('show');
+    clearMeasure();
+  }
+}
+
+function clearMeasure() {
+  const map = state.map;
+  state.measureMarkers.forEach(m => { try { m.remove(); } catch (e) {} });
+  state.measureMarkers = [];
+  state.measureStart = null;
+  try { if (map.getLayer('measure-line')) map.removeLayer('measure-line'); } catch (e) {}
+  try { if (map.getSource('measure-line')) map.removeSource('measure-line'); } catch (e) {}
+  try { if (map.getLayer('measure-label-bg')) map.removeLayer('measure-label-bg'); } catch (e) {}
+  try { if (map.getLayer('measure-label')) map.removeLayer('measure-label'); } catch (e) {}
+  try { if (map.getSource('measure-label')) map.removeSource('measure-label'); } catch (e) {}
+}
+
+function handleMeasureClick(lngLat) {
+  const map = state.map;
+  if (!state.measureStart) {
+    state.measureStart = lngLat;
+    const el = document.createElement('div');
+    el.style.cssText = 'width:14px;height:14px;background:#5a8fa8;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+    const m = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat(lngLat).addTo(map);
+    state.measureMarkers.push(m);
+    $('measure-hint').textContent = '📏 انقر على النقطة الثانية';
+    toast('📏 الآن انقر على النقطة الثانية');
+    return;
+  }
+
+  // Second click: compute distance
+  const start = state.measureStart;
+  const end = { lng: lngLat.lng, lat: lngLat.lat };
+  const dist = haversine(start, end);
+
+  const el2 = document.createElement('div');
+  el2.style.cssText = 'width:14px;height:14px;background:#b85a5a;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+  const m2 = new maplibregl.Marker({ element: el2, anchor: 'center' })
+    .setLngLat(end).addTo(map);
+  state.measureMarkers.push(m2);
+
+  const lineData = { type: 'Feature', geometry: {
+    type: 'LineString',
+    coordinates: [[start.lng, start.lat], [end.lng, end.lat]]
+  }};
+  map.addSource('measure-line', { type: 'geojson', data: lineData });
+  map.addLayer({
+    id: 'measure-line', type: 'line', source: 'measure-line',
+    paint: {
+      'line-color': '#b85a5a', 'line-width': 3,
+      'line-dasharray': [2, 1.5], 'line-opacity': 0.9
+    }
+  });
+
+  // Distance label
+  const mid = [(start.lng + end.lng) / 2, (start.lat + end.lat) / 2];
+  const distStr = dist >= 1 ? dist.toFixed(2) + ' كم' : (dist * 1000).toFixed(0) + ' م';
+  map.addSource('measure-label', { type: 'geojson', data: {
+    type: 'Feature', geometry: { type: 'Point', coordinates: mid },
+    properties: { label: '📏 ' + distStr }
+  }});
+  map.addLayer({
+    id: 'measure-label-bg', type: 'circle', source: 'measure-label',
+    paint: { 'circle-color': '#b85a5a', 'circle-radius': 18, 'circle-opacity': 0.95 }
+  });
+  map.addLayer({
+    id: 'measure-label', type: 'symbol', source: 'measure-label',
+    layout: {
+      'text-field': ['get', 'label'],
+      'text-size': 11,
+      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold']
+    },
+    paint: { 'text-color': '#ffffff' }
+  });
+
+  toast('📏 المسافة: ' + distStr, 5000);
+  $('measure-hint').textContent = '📏 انقر مرة أخرى لقياس مسافة جديدة';
+  state.measureStart = null;
+}
+
+/* ============================================================
+   18. NEW: TOUR MODE
+   ============================================================ */
+let tourTimer = null;
+let tourUsedIdx = new Set();
+
+function startTour() {
+  if (state.tourActive) { stopTour(); return; }
+  state.tourActive = true;
+  tourUsedIdx.clear();
+  $('btn-tour').classList.add('on');
+  toast('🎲 جولة استكشافية — انقر على الخريطة لإيقافها', 4000);
+  tourNext();
+}
+
+function tourNext() {
+  if (!state.tourActive) return;
+  if (tourUsedIdx.size >= PROVINCES_DATA.length) tourUsedIdx.clear();
+  let idx;
+  let attempts = 0;
+  do {
+    idx = Math.floor(Math.random() * PROVINCES_DATA.length);
+    attempts++;
+  } while (tourUsedIdx.has(idx) && attempts < 40);
+  tourUsedIdx.add(idx);
+  selectProvince(idx);
+  tourTimer = setTimeout(tourNext, 5500);
+}
+
+function stopTour() {
+  state.tourActive = false;
+  clearTimeout(tourTimer);
+  const btn = $('btn-tour');
+  if (btn) btn.classList.remove('on');
+}
+
+/* ============================================================
+   19. NEW: SCREENSHOT
+   ============================================================ */
+function takeScreenshot() {
+  try {
+    const canvas = state.map.getCanvas();
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    link.download = 'iraq-map-' + stamp + '.png';
+    link.href = dataURL;
+    link.click();
+    toast('📸 تم حفظ الصورة');
+  } catch (err) {
+    console.warn('[Screenshot]', err);
+    toast('❌ تعذر حفظ الصورة');
+  }
+}
+
+/* ============================================================
+   20. NEW: KEYBOARD SHORTCUTS
+   ============================================================ */
+function bindKeyboard() {
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    switch (e.key) {
+      case 'Escape':
+        if ($('welcome-card').classList.contains('show')) {
+          $('welcome-card').classList.remove('show');
+        } else if ($('panel').classList.contains('show')) {
+          $('panel').classList.remove('show');
+          deselectProvince();
+        } else if (state.measureMode) {
+          toggleMeasure();
+        } else if (state.routeMode) {
+          state.routeMode = false;
+          state.map.getCanvas().style.cursor = '';
+          $('btn-route').classList.remove('on');
+        } else if (state.tourActive) {
+          stopTour();
+        }
+        break;
+      case 'r': case 'R':
+        state.map.fitBounds(CONFIG.iraqBounds, {
+          padding: 60, pitch: 48, bearing: 0, duration: 1400
+        });
+        break;
+      case 'l': case 'L':
+        locateUser();
+        break;
+      case 'm': case 'M':
+        toggleMeasure();
+        break;
+      case 't': case 'T':
+        startTour();
+        break;
+      case '+': case '=':
+        state.map.zoomIn();
+        break;
+      case '-': case '_':
+        state.map.zoomOut();
+        break;
+      case 'ArrowUp': state.map.panBy([0, -100]); e.preventDefault(); break;
+      case 'ArrowDown': state.map.panBy([0, 100]); e.preventDefault(); break;
+      case 'ArrowLeft': state.map.panBy([100, 0]); e.preventDefault(); break;
+      case 'ArrowRight': state.map.panBy([-100, 0]); e.preventDefault(); break;
+    }
+  });
+}
+
+/* ============================================================
+   21. UI HANDLERS
    ============================================================ */
 function bindUI() {
   $('close-panel').addEventListener('click', () => {
     $('panel').classList.remove('show');
     deselectProvince();
   });
+
+  // NEW: sidebar X close button
+  const closeSidebarBtn = $('close-sidebar');
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', () => {
+      $('sidebar').classList.add('hidden');
+      $('btn-sidebar').classList.remove('on');
+      toast('📋 القائمة مخفية');
+    });
+  }
 
   $('zoom-prov').addEventListener('click', () => {
     if (state.selectedIdx === null) return;
@@ -1920,20 +2312,39 @@ function bindUI() {
       state.map.getCanvas().style.cursor = '';
     }
   });
+
+  // NEW: measure button
+  $('btn-measure').addEventListener('click', toggleMeasure);
+  // NEW: tour button
+  $('btn-tour').addEventListener('click', startTour);
+  // NEW: screenshot button
+  $('btn-screenshot').addEventListener('click', takeScreenshot);
+  // NEW: compass click = reset north
+  $('compass').addEventListener('click', () => {
+    state.map.easeTo({ bearing: 0, duration: 500 });
+    toast('🧭 تم توجيه الشمال للأعلى');
+  });
+  // NEW: welcome start
+  const ws = $('welcome-start');
+  if (ws) {
+    ws.addEventListener('click', () => {
+      $('welcome-card').classList.remove('show');
+      state.map.flyTo({ center: CONFIG.iraqCenter, zoom: 5.8, pitch: 50, bearing: 0, duration: 1400 });
+      setTimeout(() => toast(getGreeting() + ' — أهلاً بك في العراق 🇮🇶', 3500), 800);
+    });
+  }
 }
 
 /* ============================================================
-   17. TAXI APP INTEGRATION API
+   22. TAXI APP INTEGRATION API
    ============================================================ */
 window.TaxiMap = {
-  // Core
   getMap: () => state.map,
   isReady: () => state.ready,
   getCenter: () => state.map ? state.map.getCenter() : null,
   getBounds: () => state.map ? state.map.getBounds() : null,
   getZoom: () => state.map ? state.map.getZoom() : null,
 
-  // Location
   getUserLocation: () => state.userLocation,
   locateUser: () => locateUser(),
   setUserLocation: (lng, lat) => {
@@ -1946,7 +2357,6 @@ window.TaxiMap = {
       .setLngLat([lng, lat]).addTo(state.map);
   },
 
-  // Navigation
   flyTo: (lng, lat, opts = {}) => {
     if (state.map) state.map.flyTo({ center: [lng, lat], ...opts });
   },
@@ -1954,13 +2364,11 @@ window.TaxiMap = {
     if (state.map) state.map.fitBounds(bounds, opts);
   },
 
-  // Route
   setDestination: (lng, lat) => setDestination(lng, lat),
   requestRoute: (from, to) => requestRoute(from, to),
   clearRoute: () => clearRoute(),
   getRoute: () => state.routeSources,
 
-  // Interaction
   onMapClick: (callback) => {
     if (state.map) state.map.on('click', e => callback(e.lngLat));
   },
@@ -1972,7 +2380,6 @@ window.TaxiMap = {
     }));
   },
 
-  // Layers
   toggleBuildings: (on) => {
     state.buildingsActive = !!on;
     $('btn-buildings').classList.toggle('on', state.buildingsActive);
@@ -1984,7 +2391,6 @@ window.TaxiMap = {
     applyToggles();
   },
 
-  // Search
   searchPlace: async (query) => {
     const params = new URLSearchParams({
       q: query, format: 'json', limit: '5',
@@ -1995,25 +2401,31 @@ window.TaxiMap = {
     return await res.json();
   },
 
-  // Utilities
+  // NEW: extra utilities exposed for taxi app
+  getGreeting: () => getGreeting(),
+  screenshot: () => takeScreenshot(),
+  startTour: () => startTour(),
+  stopTour: () => stopTour(),
+  toggleMeasure: () => toggleMeasure(),
   toast: (msg, ms) => toast(msg, ms),
-  version: '1.0.0'
+  version: '1.1.0'
 };
 
 /* ============================================================
-   18. BOOTSTRAP
+   23. BOOTSTRAP
    ============================================================ */
 async function boot() {
   try {
     bindUI();
+    bindKeyboard();
+    updateClock();
+    setInterval(updateClock, 15000); // every 15s is enough
     await initMap();
-    // Auto-load initial view content after a short delay
     setTimeout(() => {
       if (state.ready) {
         loadBuildingsForViewport(true);
       }
     }, 1500);
-    // On mobile, auto-hide sidebar after 4s
     if (CONFIG.isMobile) {
       setTimeout(() => {
         $('sidebar').classList.add('hidden');
@@ -2033,7 +2445,6 @@ if (document.readyState === 'loading') {
   boot();
 }
 
-// Expose some internals for debugging
 window.__state = state;
 window.__config = CONFIG;
 window.__theme = T;
