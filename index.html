@@ -2,1376 +2,2041 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>IRAQ MIND MAP 3D — ULTIMATE EDITION</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#f2efe9">
+<title>خريطة العراق ثلاثية الأبعاد — إصدار التاكسي</title>
 <link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
-
 <style>
-:root{--bg:#02040a;--panel:rgba(8,14,32,0.92);--line:#4a2dff;--accent:#00f5ff;--hotpink:#ff006e;--lime:#06ffa5;--gold:#ffe600;--purple:#b537f2;--ok:#00ffa3}
+:root{
+  --bg:#f2efe9; --panel:rgba(255,253,250,.97); --panel-border:#e0d8c8;
+  --text:#2c2c2c; --text-2:#6a6a6a; --text-3:#9a9a9a;
+  --accent:#5a8fa8; --accent-2:#3d6f88; --accent-light:#e8f0f4;
+  --success:#7a9a5a; --warning:#c89858; --danger:#b85a5a;
+  --shadow:0 2px 12px rgba(60,50,30,.08);
+  --shadow-lg:0 8px 32px rgba(60,50,30,.15);
+  --radius:12px; --radius-sm:8px;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:#f0fbff;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",Tahoma,Arial,sans-serif;font-size:14px}
 #map{position:absolute;inset:0}
-#loading{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#150036,#020410 65%);text-align:center;padding:24px;transition:opacity .5s}
-#loading h1{margin:0 0 6px;font-size:28px;letter-spacing:4px;background:linear-gradient(90deg,#00f5ff,#ff006e,#ffe600,#06ffa5);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;filter:drop-shadow(0 0 20px #ff006e99)}
-#loading .sub{font-size:13px;color:#b8d9ff;margin-bottom:22px}
-#loading .ring{width:70px;height:70px;border-radius:50%;border:3px solid transparent;border-top-color:#00f5ff;border-right-color:#ff006e;border-bottom-color:#ffe600;animation:spin 1.2s linear infinite;margin-bottom:22px;box-shadow:0 0 30px #00f5ff66}
+
+/* Loading */
+#loading{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#faf8f4 0%,#ece8e1 100%);
+  transition:opacity .6s}
+#loading.hidden{opacity:0;pointer-events:none}
+#loading .spinner{width:48px;height:48px;border:3px solid var(--accent-light);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 1s linear infinite;margin-bottom:24px}
 @keyframes spin{to{transform:rotate(360deg)}}
-#bar{width:min(340px,80vw);height:6px;border-radius:6px;background:#10082a;overflow:hidden;margin-top:6px;border:1px solid #4a2dff55}
-#bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#00f5ff,#ff006e,#ffe600,#06ffa5);background-size:300% 100%;animation:shimmer 2s linear infinite;transition:width .4s ease;box-shadow:0 0 20px #00f5ffaa}
-@keyframes shimmer{to{background-position:300% 0}}
-#loadText{font-size:13px;color:#b8d9ff;margin:14px 0 0;line-height:1.9;max-width:420px}
-.retryBtn{margin-top:16px;padding:11px 24px;background:linear-gradient(135deg,#ff006e,#b537f2);color:#fff;font-weight:700;border:0;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;transition:.18s;box-shadow:0 4px 20px #ff006e77}
-#header{position:absolute;top:12px;left:12px;right:12px;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
-.logo,.status{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:11px;line-height:1.7;backdrop-filter:blur(16px);pointer-events:auto;box-shadow:0 8px 40px #4a2dff55,0 0 0 1px #4a2dff33 inset}
-.logo strong{font-size:15px;letter-spacing:2px;font-weight:800;background:linear-gradient(90deg,#00f5ff,#ff006e,#ffe600);-webkit-background-clip:text;background-clip:text;color:transparent}
-.logo small{color:#8fb8e8;font-size:10px}
-.status{display:flex;align-items:center;gap:8px;font-size:11px;color:#d9ecff;white-space:nowrap}
-.status b{color:var(--lime);font-weight:700;text-shadow:0 0 12px var(--lime)}
-.dotlive{width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime),0 0 24px var(--lime);animation:blink 1.6s infinite}
-@keyframes blink{50%{opacity:.2;transform:scale(.8)}}
-button{font-family:inherit}
-.tool{padding:11px 15px;color:#fff;font-size:12px;cursor:pointer;font-weight:600;background:linear-gradient(135deg,rgba(20,10,50,.92),rgba(10,30,60,.92));border:1px solid #4a2dff;border-radius:11px;backdrop-filter:blur(12px);transition:.18s;white-space:nowrap;box-shadow:0 4px 20px #4a2dff44;flex-shrink:0}
-.tool:hover{background:linear-gradient(135deg,#4a2dff,#b537f2);border-color:#00f5ff;color:#fff;transform:translateY(-1px);box-shadow:0 6px 30px #b537f288}
-.tool.on{background:linear-gradient(135deg,#00f5ff,#06ffa5);border-color:#00f5ff;color:#021018;font-weight:800;box-shadow:0 0 24px #00f5ff88}
-#myLocation.on{background:linear-gradient(135deg,#ffe600,#ff006e);border-color:#ffe600;color:#021018;box-shadow:0 0 24px #ffe60088;animation:pulseBtn 2s infinite}
-@keyframes pulseBtn{0%,100%{box-shadow:0 0 24px #ffe60088}50%{box-shadow:0 0 40px #ffe600cc}}
-#panel{position:absolute;z-index:25;right:12px;top:74px;bottom:12px;width:min(350px,86vw);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;overflow-y:auto;display:none;box-shadow:0 20px 70px #000c,0 0 0 1px #4a2dff44 inset;backdrop-filter:blur(18px);animation:slideIn .35s ease}
-@keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
-#panel::-webkit-scrollbar{width:7px}
-#panel::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#00f5ff,#ff006e);border-radius:4px}
-#panel h2{margin:0 0 4px;font-size:21px;font-weight:800;background:linear-gradient(90deg,#00f5ff,#ffe600,#ff006e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #00f5ff77)}
-#panel .enName{font-size:11px;color:#8fb8e8;margin:0 0 14px;letter-spacing:1px;font-weight:600}
-#panel h3{font-size:12px;margin:20px 0 10px;letter-spacing:.6px;font-weight:700;color:#ffe600;padding-bottom:7px;border-bottom:1px solid #4a2dff66;text-shadow:0 0 12px #ffe60066}
-#panel p{font-size:12.5px;line-height:1.9;color:#d9ecff;margin:0 0 8px}
-.statGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
-.stat{background:linear-gradient(135deg,rgba(74,45,255,.15),rgba(181,55,242,.15));border:1px solid #4a2dff77;border-radius:12px;padding:10px 11px;position:relative;overflow:hidden}
-.stat::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:linear-gradient(180deg,#00f5ff,#ff006e);box-shadow:0 0 12px #00f5ff}
-.stat span{display:block;font-size:10px;color:#a8b8e8;margin-bottom:4px;font-weight:600}
-.stat b{font-size:15px;color:#fff;font-weight:800;letter-spacing:.3px}
-.stat b em{font-size:10px;color:#a8b8e8;font-style:normal;font-weight:600}
-#storyBox{margin-top:16px;padding:14px;background:linear-gradient(135deg,rgba(255,230,0,.08),rgba(255,0,110,.08));border:1px solid #FFE60066;border-radius:12px;font-size:12.5px;line-height:1.9;color:#FFE600;display:none}
-#branches{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#branches button{width:100%;padding:11px 8px;font-size:11.5px;font-weight:600;border:1px solid #4a2dff88;border-radius:11px;background:linear-gradient(135deg,rgba(74,45,255,.2),rgba(181,55,242,.15));color:#e8f4ff;cursor:pointer;transition:.16s;text-align:center}
-#branches button:hover{background:linear-gradient(135deg,#4a2dff,#b537f2);border-color:#00f5ff;color:#fff;box-shadow:0 0 20px #b537f288;transform:translateY(-1px)}
-#branches button.active{background:linear-gradient(135deg,#ffe600,#ff006e);border-color:#ffe600;color:#021018;font-weight:800;box-shadow:0 0 24px #ffe60088}
-.panelActions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
-.panelActions button{flex:1;min-width:110px;padding:12px;border-radius:12px;cursor:pointer;font-size:12px;font-weight:700;border:1px solid #4a2dff;background:linear-gradient(135deg,#1a1060,#2a1580);color:#fff;transition:.16s;box-shadow:0 4px 16px #4a2dff44}
-.panelActions button:hover{background:linear-gradient(135deg,#4a2dff,#b537f2);border-color:#00f5ff;box-shadow:0 0 24px #b537f288;transform:translateY(-1px)}
-.panelActions button.danger{border-color:#ff006e;background:linear-gradient(135deg,#5a0030,#8a0040);color:#ffb0d0}
-.panelActions button.danger:hover{background:linear-gradient(135deg,#ff006e,#b537f2);color:#fff;box-shadow:0 0 24px #ff006e88}
-#close{position:absolute;left:12px;top:12px;width:32px;height:32px;background:linear-gradient(135deg,#4a2dff,#b537f2);color:#fff;border:0;border-radius:10px;cursor:pointer;font-size:15px;font-weight:800;transition:.16s;box-shadow:0 4px 16px #4a2dff66}
-#close:hover{background:linear-gradient(135deg,#ff006e,#b537f2);transform:rotate(90deg);box-shadow:0 0 24px #ff006e88}
-#sideList{position:absolute;z-index:22;left:12px;top:74px;bottom:12px;width:min(260px,80vw);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:13px;display:flex;flex-direction:column;box-shadow:0 20px 70px #000c,0 0 0 1px #4a2dff44 inset;backdrop-filter:blur(18px);transition:transform .3s ease,opacity .3s ease}
-#sideList.hidden{transform:translateX(-115%);opacity:0;pointer-events:none}
-#sideList h4{margin:2px 0 11px;font-size:12px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;color:#ffe600;text-shadow:0 0 10px #ffe60077}
-#search{width:100%;padding:10px 12px;margin-bottom:10px;background:rgba(20,10,50,.8);border:1px solid #4a2dff88;border-radius:11px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:.16s}
-#search:focus{border-color:#00f5ff;box-shadow:0 0 0 3px #00f5ff33,0 0 20px #00f5ff66}
-#search::placeholder{color:#7a8fc0}
-#provList{overflow-y:auto;flex:1;padding-left:2px}
-#provList::-webkit-scrollbar{width:6px}
-#provList::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#00f5ff,#b537f2);border-radius:4px}
-.provItem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;cursor:pointer;font-size:12.5px;color:#d9ecff;transition:.15s;border:1px solid transparent;font-weight:500}
-.provItem:hover{background:linear-gradient(90deg,rgba(74,45,255,.25),rgba(181,55,242,.15));border-color:#4a2dff}
-.provItem.active{background:linear-gradient(90deg,rgba(0,245,255,.3),rgba(255,0,110,.2));border-color:#00f5ff;color:#fff;font-weight:700;box-shadow:0 0 16px #00f5ff55}
-.provItem .swatch{width:12px;height:12px;border-radius:4px;flex-shrink:0;box-shadow:0 0 12px currentColor,0 0 6px currentColor inset}
-.provItem .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tools{position:absolute;bottom:15px;left:12px;z-index:23;display:flex;flex-wrap:wrap;gap:8px;max-width:min(700px,68vw)}
-.node{width:0;height:0;cursor:pointer;z-index:2}
-.node .dot{position:absolute;left:-8px;top:-8px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffffff,#00f5ff 45%,#ff006e);border:2px solid #fff;box-shadow:0 0 12px #00f5ff,0 0 26px #ff006e,0 0 40px #00f5ff88;animation:pulse 2.4s infinite;transition:.2s}
-.node:hover .dot{transform:scale(1.5);background:radial-gradient(circle at 35% 35%,#fff,#ffe600 45%,#ff006e);box-shadow:0 0 20px #ffe600,0 0 40px #ff006e}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #00f5ff99,0 0 12px #00f5ff,0 0 26px #ff006e}55%{box-shadow:0 0 0 12px #00f5ff00,0 0 24px #00f5ff,0 0 40px #ff006e}}
-.node-label{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);background:rgba(10,4,30,.94);border:1px solid #4a2dff;border-radius:9px;padding:4px 10px;color:#fff;white-space:nowrap;font-size:11px;font-weight:600;pointer-events:none;box-shadow:0 4px 16px #4a2dff88,0 0 16px #00f5ff44;transition:.18s}
-.node:hover .node-label{background:linear-gradient(90deg,#ff006e,#b537f2);border-color:#ffe600;color:#fff;box-shadow:0 0 20px #ffe600aa}
-.user-marker{width:0;height:0;z-index:10}
-.user-dot{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffffff,#00f5ff 60%);border:2px solid #fff;box-shadow:0 0 20px #00f5ff,0 0 40px #00f5ff}
-.user-pulse{position:absolute;left:-25px;top:-25px;width:50px;height:50px;border-radius:50%;background:rgba(0,245,255,0.2);border:2px solid #00f5ff;animation:userPulse 2s infinite ease-out}
-@keyframes userPulse{0%{transform:scale(0.3);opacity:1}100%{transform:scale(2.5);opacity:0}}
-#toast{position:absolute;z-index:70;bottom:80px;right:50%;transform:translateX(50%) translateY(20px);background:linear-gradient(135deg,rgba(74,45,255,.95),rgba(181,55,242,.9));border:1px solid #00f5ff;border-radius:13px;padding:12px 20px;font-size:13px;color:#fff;font-weight:600;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 10px 44px #4a2dff88,0 0 24px #00f5ff88;max-width:88vw;text-align:center}
-#toast.show{opacity:1;transform:translateX(50%) translateY(0)}
-@media(max-width:720px){#sideList{width:min(250px,74vw);top:120px}#panel{width:min(330px,92vw);top:120px}#tools{max-width:calc(100vw - 24px);bottom:78px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}#tools::-webkit-scrollbar{height:4px}#tools::-webkit-scrollbar-thumb{background:#4a2dff;border-radius:2px}.tool{padding:9px 12px;font-size:11px}#header{top:8px;left:8px;right:8px}.logo{padding:8px 11px}.logo strong{font-size:12px}.status{font-size:10px;padding:8px 11px}}
+#loading h1{font-size:22px;font-weight:700;color:var(--accent-2);
+  margin:0 0 8px;letter-spacing:1px}
+#loading .sub{font-size:13px;color:var(--text-2);margin-bottom:24px}
+#loading .bar{width:240px;height:4px;background:var(--accent-light);
+  border-radius:2px;overflow:hidden}
+#loading .bar>i{display:block;height:100%;width:0%;background:var(--accent);
+  transition:width .4s ease}
+#loading .hint{margin-top:16px;font-size:11px;color:var(--text-3);text-align:center;
+  max-width:300px;line-height:1.6}
+
+/* Header */
+#header{position:absolute;top:12px;left:12px;right:12px;z-index:20;
+  display:flex;gap:12px;align-items:flex-start;pointer-events:none}
+.brand{background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);padding:10px 16px;box-shadow:var(--shadow);
+  pointer-events:auto;flex-shrink:0}
+.brand strong{font-size:15px;font-weight:700;color:var(--accent-2);
+  display:block;letter-spacing:.5px}
+.brand small{font-size:11px;color:var(--text-3)}
+
+#search-wrap{flex:1;max-width:480px;pointer-events:auto;position:relative}
+#search{width:100%;padding:12px 42px 12px 16px;background:var(--panel);
+  border:1px solid var(--panel-border);border-radius:var(--radius);
+  font-size:13px;color:var(--text);font-family:inherit;outline:none;
+  box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+#search:focus{border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-light),var(--shadow)}
+.search-icon{position:absolute;top:50%;right:14px;transform:translateY(-50%);
+  color:var(--text-3);font-size:16px;pointer-events:none}
+#search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);box-shadow:var(--shadow-lg);
+  max-height:320px;overflow-y:auto;display:none;z-index:30}
+#search-results.show{display:block}
+.search-result{padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--panel-border);font-size:13px;transition:background .15s}
+.search-result:last-child{border-bottom:0}
+.search-result:hover{background:var(--accent-light)}
+.search-result .name{font-weight:600;color:var(--text)}
+.search-result .type{font-size:11px;color:var(--text-3);margin-top:2px}
+.search-result.loading{color:var(--text-3);font-style:italic;cursor:default}
+
+.status{background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);padding:10px 14px;font-size:11px;color:var(--text-2);
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;
+  pointer-events:auto;white-space:nowrap;flex-shrink:0}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--success);
+  box-shadow:0 0 0 0 rgba(122,154,90,.4);animation:pulseDot 2s infinite}
+@keyframes pulseDot{
+  0%{box-shadow:0 0 0 0 rgba(122,154,90,.4)}
+  70%{box-shadow:0 0 0 8px rgba(122,154,90,0)}
+  100%{box-shadow:0 0 0 0 rgba(122,154,90,0)}}
+
+/* Sidebar */
+#sidebar{position:absolute;left:12px;top:82px;bottom:12px;
+  width:min(280px,78vw);background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;
+  box-shadow:var(--shadow-lg);z-index:15;
+  transition:transform .3s ease,opacity .3s ease}
+#sidebar.hidden{transform:translateX(-110%);opacity:0;pointer-events:none}
+#sidebar h3{margin:4px 0 10px;font-size:13px;font-weight:700;
+  color:var(--accent-2);display:flex;justify-content:space-between}
+#sidebar h3 span{color:var(--text-3);font-weight:500;font-size:11px}
+#prov-list{overflow-y:auto;flex:1}
+#prov-list::-webkit-scrollbar{width:6px}
+#prov-list::-webkit-scrollbar-thumb{background:var(--panel-border);border-radius:3px}
+.prov-item{display:flex;align-items:center;gap:10px;padding:9px 10px;
+  border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text-2);
+  transition:background .15s;border:1px solid transparent}
+.prov-item:hover{background:var(--accent-light)}
+.prov-item.active{background:var(--accent-light);border-color:var(--accent);
+  color:var(--accent-2);font-weight:600}
+.prov-item .dot-mini{width:10px;height:10px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;opacity:.55}
+.prov-item.active .dot-mini{opacity:1}
+
+/* Info panel */
+#panel{position:absolute;right:12px;top:82px;bottom:12px;
+  width:min(340px,88vw);background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius);padding:18px;overflow-y:auto;
+  box-shadow:var(--shadow-lg);z-index:15;display:none}
+#panel.show{display:block;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+#panel .close-btn{position:absolute;top:12px;left:12px;width:30px;height:30px;
+  background:var(--accent-light);border:0;border-radius:var(--radius-sm);
+  cursor:pointer;color:var(--accent-2);font-size:14px;font-weight:700;
+  transition:background .15s}
+#panel .close-btn:hover{background:#d8e4ec}
+#panel h2{margin:0 40px 4px 0;font-size:20px;font-weight:700;color:var(--accent-2)}
+#panel .en{font-size:11px;color:var(--text-3);margin:0 0 14px;letter-spacing:.5px}
+#panel p{font-size:13px;line-height:1.8;color:var(--text-2);margin:0 0 10px}
+#panel h4{font-size:12px;margin:16px 0 8px;color:var(--text);font-weight:600;
+  padding-bottom:6px;border-bottom:1px solid var(--panel-border)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--accent-light);border-radius:var(--radius-sm);padding:10px}
+.stat span{display:block;font-size:10px;color:var(--text-3);margin-bottom:4px}
+.stat b{font-size:14px;color:var(--text);font-weight:600}
+.stat b em{font-size:10px;color:var(--text-3);font-style:normal}
+.panel-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.panel-actions button{flex:1;min-width:100px;padding:10px;
+  background:var(--accent-light);border:1px solid var(--panel-border);
+  border-radius:var(--radius-sm);color:var(--accent-2);font-size:12px;
+  font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.panel-actions button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Tools */
+#tools{position:absolute;bottom:16px;left:12px;right:12px;z-index:14;
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;pointer-events:none}
+.tool-group{display:flex;gap:6px;background:var(--panel);
+  border:1px solid var(--panel-border);border-radius:var(--radius);padding:6px;
+  box-shadow:var(--shadow);pointer-events:auto}
+.tool{padding:8px 12px;background:transparent;border:0;
+  border-radius:var(--radius-sm);color:var(--text-2);font-size:12px;
+  font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;
+  font-family:inherit;display:flex;align-items:center;gap:4px}
+.tool:hover{background:var(--accent-light);color:var(--accent-2)}
+.tool.on{background:var(--accent);color:#fff}
+.tool.on:hover{background:var(--accent-2)}
+
+/* Toast */
+#toast{position:absolute;bottom:90px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--accent-2);color:#fff;padding:10px 20px;
+  border-radius:var(--radius);font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;
+  transition:all .3s ease;z-index:50;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* User marker */
+.user-marker{width:0;height:0;z-index:5}
+.user-dot{position:absolute;left:-9px;top:-9px;width:18px;height:18px;
+  border-radius:50%;background:var(--accent);border:3px solid #fff;
+  box-shadow:0 0 16px rgba(90,143,168,.6)}
+.user-pulse{position:absolute;left:-22px;top:-22px;width:44px;height:44px;
+  border-radius:50%;background:rgba(90,143,168,.2);
+  animation:userPulse 2s infinite ease-out}
+@keyframes userPulse{0%{transform:scale(.3);opacity:1}100%{transform:scale(2);opacity:0}}
+
+/* Destination marker */
+.dest-marker{width:24px;height:24px;background:var(--danger);
+  border:3px solid #fff;border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);box-shadow:0 2px 12px rgba(184,90,90,.5)}
+
+/* Mobile */
+@media(max-width:720px){
+  #header{flex-wrap:wrap;gap:8px}
+  #search-wrap{order:3;flex-basis:100%;max-width:none}
+  #sidebar{width:min(260px,82vw);top:132px}
+  #panel{width:min(320px,92vw);top:132px}
+  #tools{bottom:12px;flex-wrap:nowrap;overflow-x:auto}
+  #tools::-webkit-scrollbar{height:3px}
+  #tools::-webkit-scrollbar-thumb{background:var(--panel-border)}
+  .tool-group{flex-shrink:0}
+  .tool{padding:8px 10px;font-size:11px}
+  .brand{padding:8px 12px}
+  .brand strong{font-size:13px}
+  .brand small{font-size:10px}
+}
 </style>
 </head>
-
 <body>
 
 <div id="map"></div>
 
 <div id="loading">
-  <div class="ring"></div>
-  <h1>IRAQ MIND MAP 3D</h1>
-  <div class="sub">الخريطة الذهنية الجغرافية للعراق — الإصدار الشامل</div>
-  <div id="bar"><i></i></div>
-  <p id="loadText">جاري تهيئة المحرك ثلاثي الأبعاد...</p>
+  <div class="spinner"></div>
+  <h1>خريطة العراق ثلاثية الأبعاد</h1>
+  <div class="sub">نسخة نظيفة وواضحة — جاهزة للربط مع تطبيق التاكسي</div>
+  <div class="bar"><i id="load-bar"></i></div>
+  <div class="hint" id="load-hint">جاري تهيئة المحرك ثلاثي الأبعاد...</div>
 </div>
 
 <div id="header">
-  <div class="logo"><strong>IRAQ MIND MAP 3D</strong><br><small>الخريطة الذهنية الجغرافية</small></div>
-  <div class="status"><span class="dotlive"></span><span id="status">جاري التحميل...</span></div>
-</div>
-
-<div id="sideList">
-  <h4><span>محافظات العراق</span><span id="provCount" style="color:#7a8fc0;font-size:10px">—</span></h4>
-  <input id="search" type="text" placeholder="🔍 ابحث عن محافظة...">
-  <div id="provList"></div>
-</div>
-
-<div id="panel">
-  <button id="close" title="إغلاق">✕</button>
-  <h2 id="provinceName">المحافظة</h2>
-  <p class="enName" id="provinceEn"></p>
-  <p id="provinceInfo">معلومات المحافظة</p>
-  <div id="storyBox"></div>
-  <div class="statGrid" id="statGrid"></div>
-  <h3>✦ الفروع الذهنية</h3>
-  <div id="branches"></div>
-  <h3>✦ المعلومات الإدارية</h3>
-  <div id="adminInfo"></div>
-  <div class="panelActions">
-    <button id="zoomProvince">تكبير المحافظة</button>
-    <button id="showAll">عرض العراق كاملاً</button>
-    <button id="clearBranch" class="danger">مسح الفروع</button>
+  <div class="brand">
+    <strong>خريطة العراق 3D</strong>
+    <small>نظرة واضحة، تنقل أسهل</small>
+  </div>
+  <div id="search-wrap">
+    <input id="search" type="text" placeholder="ابحث عن مدينة أو شارع أو مكان..." autocomplete="off">
+    <span class="search-icon">🔍</span>
+    <div id="search-results"></div>
+  </div>
+  <div class="status">
+    <span class="dot"></span>
+    <span id="status-text">جاري التحميل...</span>
   </div>
 </div>
 
+<aside id="sidebar">
+  <h3>محافظات العراق <span id="prov-count"></span></h3>
+  <div id="prov-list"></div>
+</aside>
+
+<aside id="panel">
+  <button class="close-btn" id="close-panel">✕</button>
+  <h2 id="p-name">—</h2>
+  <p class="en" id="p-en">—</p>
+  <p id="p-info">—</p>
+  <h4>الأرقام الأساسية</h4>
+  <div class="stat-grid" id="p-stats"></div>
+  <h4>معلومات إدارية</h4>
+  <div id="p-admin"></div>
+  <div class="panel-actions">
+    <button id="zoom-prov">تكبير المحافظة</button>
+    <button id="show-all">عرض العراق</button>
+  </div>
+</aside>
+
 <div id="tools">
-  <button class="tool" id="reset">🏠 إعادة العرض</button>
-  <button class="tool on" id="terrain">⛰️ تضاريس 3D</button>
-  <button class="tool on" id="labels">🏷️ الأسماء</button>
-  <button class="tool" id="myLocation">📍 موقعي</button>
-  <button class="tool" id="toggleList">📋 القائمة</button>
-  <button class="tool" id="loadBuildings">🏗️ المباني</button>
-  <button class="tool" id="loadRoads">🛣️ الطرق</button>
-  <button class="tool" id="loadAirportsBtn">✈️ المطارات</button>
-  <button class="tool" id="toggleAircraft">🛩️ الطائرات</button>
-  <button class="tool" id="toggleTraffic">🚦 السرعات</button>
-  <button class="tool" id="pickDest">🎯 وجهة</button>
-  <button class="tool" id="clearRoute">❌ مسح المسار</button>
-  <button class="tool" id="toggleUnesco">🏛️ التراث العالمي</button>
-  <button class="tool" id="toggleOil">🛢️ النفط والغاز</button>
-  <button class="tool" id="toggleMarshes">🌊 الأهوار</button>
-  <button class="tool" id="toggleDams">⚡ السدود والبحيرات</button>
-  <button class="tool" id="togglePopRise">📊 ارتفاع سكاني</button>
-  <button class="tool" id="toggleMinerals">🪨 الموارد المعدنية</button>
-  <button class="tool" id="toggleRenewables">☀️ الطاقة المتجددة</button>
-  <button class="tool" id="togglePipelines">🛢️ خطوط الأنابيب</button>
-  <button class="tool" id="toggleFlood">🌊 محاكاة الفيضان</button>
+  <div class="tool-group">
+    <button class="tool" id="btn-reset">🏠 إعادة العرض</button>
+    <button class="tool on" id="btn-terrain">⛰️ التضاريس</button>
+    <button class="tool" id="btn-locate">📍 موقعي</button>
+  </div>
+  <div class="tool-group">
+    <button class="tool on" id="btn-buildings">🏢 المباني</button>
+    <button class="tool on" id="btn-roads">🛣️ الشوارع</button>
+    <button class="tool on" id="btn-water">💧 المياه</button>
+    <button class="tool on" id="btn-parks">🌳 الحدائق</button>
+    <button class="tool on" id="btn-labels">🏷️ الأسماء</button>
+  </div>
+  <div class="tool-group">
+    <button class="tool" id="btn-sidebar">📋 القائمة</button>
+    <button class="tool" id="btn-route">🧭 مسار</button>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
+'use strict';
+
 /* ============================================================
-   1. البيانات الأساسية
+   1. CONFIG
    ============================================================ */
-const PROVINCE_META = [
- {ar:'بغداد',en:'Baghdad',cap:'بغداد',area:4555,pop:9780429,c:[44.366,33.315],note:'العاصمة الاتحادية ومركز الثقل السياسي والاقتصادي.'},
- {ar:'البصرة',en:'Basra',cap:'البصرة',area:19070,pop:3664168,c:[47.783,30.508],note:'الميناء الرئيسي وقلب العراق الاقتصادي البحري.'},
- {ar:'نينوى',en:'Nineveh',cap:'الموصل',area:37323,pop:4261980,c:[43.118,36.335],note:'أكبر المحافظات سكاناً في شمال العراق.'},
- {ar:'أربيل',en:'Erbil',cap:'أربيل',area:15074,pop:2517534,c:[44.009,36.191],note:'عاصمة إقليم كردستان وأقدم المدن المأهولة.'},
- {ar:'النجف',en:'Najaf',cap:'النجف',area:28824,pop:1950833,c:[44.333,32.000],note:'مركز ديني عالمي وموطن مرقد الإمام علي.'},
- {ar:'كربلاء',en:'Karbala',cap:'كربلاء',area:5034,pop:1754065,c:[44.024,32.616],note:'مدينة الإمام الحسين ومحطة زيارة عالمية.'},
- {ar:'بابل',en:'Babylon',cap:'الحلة',area:5603,pop:2482324,c:[44.433,32.483],note:'موطن حضارة بابل وآثارها المدرجة عالمياً.'},
- {ar:'الأنبار',en:'Anbar',cap:'الرمادي',area:138501,pop:2004418,c:[43.300,33.425],note:'أكبر محافظات العراق مساحةً.'},
- {ar:'ديالى',en:'Diyala',cap:'بعقوبة',area:17685,pop:1934504,c:[44.643,33.745],note:'بوابة العراق الشرقية وسلة حمضيات البلاد.'},
- {ar:'ذي قار',en:'Dhi Qar',cap:'الناصرية',area:12900,pop:2499468,c:[46.257,31.043],note:'موطن حضارة أور السومرية والزقورة الشهيرة.'},
- {ar:'ميسان',en:'Maysan',cap:'العمارة',area:16072,pop:1294503,c:[47.144,31.835],note:'أرض الأهوار والمسطحات المائية الجنوبية.'},
- {ar:'المثنى',en:'Muthanna',cap:'السماوة',area:51740,pop:1043087,c:[45.280,31.311],note:'محافظة صحراوية واسعة على الحدود الجنوبية.'},
- {ar:'القادسية',en:'Qadisiyyah',cap:'الديوانية',area:8153,pop:1477310,c:[44.925,31.992],note:'سلة الحبوب في الفرات الأوسط.'},
- {ar:'واسط',en:'Wasit',cap:'الكوت',area:17153,pop:1643406,c:[45.818,32.512],note:'تحتضن سد الكوت وأراضي زراعية خصبة.'},
- {ar:'صلاح الدين',en:'Saladin',cap:'تكريت',area:24751,pop:1774542,c:[43.678,34.607],note:'محافظة تاريخية على ضفاف دجلة.'},
- {ar:'كركوك',en:'Kirkuk',cap:'كركوك',area:9679,pop:2034627,c:[44.392,35.468],note:'مدينة النفط والتعدد القومي.'},
- {ar:'دهوك',en:'Duhok',cap:'دهوك',area:6553,pop:1599871,c:[42.988,36.867],note:'محافظة جبلية خلابة على الحدود الشمالية.'},
- {ar:'السليمانية',en:'Sulaymaniyah',cap:'السليمانية',area:17023,pop:2401724,c:[45.436,35.561],note:'مركز ثقافي كردي وموطن جبال حمرين.'}
-];
-
-const COLORS = ['#FF006E','#FB5607','#FFBE0B','#8338EC','#3A86FF','#06FFA5','#FF4D6D','#00F5D4','#F15BB5','#9B5DE5','#FEE440','#00BBF9','#FB8500','#E63946','#2EC4B6','#FF9F1C','#7209B7','#00F5D4'];
-
-const UNESCO_SITES = [
- {name:'مدينة سامراء الأثرية',en:'Samarra Archaeological City',c:[43.8235,34.3410],year:2007,type:'ثقافي'},
- {name:'الحضر',en:'Hatra',c:[42.7183,35.5881],year:1985,type:'ثقافي'},
- {name:'آشور (قلعة الشرقاط)',en:'Ashur',c:[43.2611,35.4567],year:2003,type:'ثقافي'},
- {name:'قلعة أربيل',en:'Erbil Citadel',c:[44.0092,36.1911],year:2014,type:'ثقافي'},
- {name:'بابل',en:'Babylon',c:[44.4211,32.5364],year:2019,type:'ثقافي'},
- {name:'أور الأثرية',en:'Ur',c:[46.1031,30.9631],year:2016,type:'ثقافي'},
- {name:'أوروك الأثرية',en:'Uruk',c:[45.6372,31.3242],year:2016,type:'ثقافي'},
- {name:'إريدو',en:'Tell Eridu',c:[45.9958,30.8169],year:2016,type:'ثقافي'},
- {name:'أهوار العراق',en:'The Ahwar',c:[47.0542,31.0853],year:2016,type:'طبيعي/مختلط'}
-];
-
-const OIL_FIELDS = [
- {name:'مجنون',en:'Majnoon',c:[47.45,31.15],reserve:38,unit:'مليار برميل',prov:'البصرة',note:'من أكبر الحقول عالمياً'},
- {name:'غرب القرنة 2',en:'West Qurna 2',c:[47.20,30.95],reserve:13,unit:'مليار برميل',prov:'البصرة',note:'ركيزة خطة 8 ملايين برميل/يوم'},
- {name:'الناصرية',en:'Nasiriyah',c:[46.25,31.05],reserve:4.4,unit:'مليار برميل',prov:'ذي قار',note:'حقل استراتيجي في الجنوب'},
- {name:'عكاس',en:'Akkas',c:[41.90,33.60],reserve:5.6,unit:'تريليون قدم مكعب',prov:'الأنبار',note:'حقل غازي غرب العراق'},
- {name:'المنصورية',en:'Mansuriyah',c:[45.90,33.10],reserve:3.4,unit:'تريليون قدم مكعب',prov:'ديالى',note:'حقل غازي واعد'}
-];
-
-const MARSHES = [
- {name:'أهوار الحمار',en:'Hammar Marshes',c:[47.4386,30.7392],area:'2,800–4,500 كم²',note:'يغذيها نهر الفرات'},
- {name:'الأهوار الوسطى',en:'Central Marshes',c:[47.0542,31.0853],area:'~3,000 كم²',note:'تتلقى مياهها من دجلة'},
- {name:'أهوار الحويزة',en:'Huwaizah Marshes',c:[47.6578,31.5622],area:'مشتركة مع إيران',note:'شرق دجلة على الحدود'}
-];
-
-const DAMS = [
- {name:'سد الموصل',c:[42.85,36.62],capacity:'11.11',unit:'مليار م³',type:'dam',note:'على دجلة — 1986'},
- {name:'سد حديثة',c:[42.38,34.14],capacity:'8.28',unit:'مليار م³',type:'dam',note:'على الفرات — 1986'},
- {name:'سد دوكان',c:[44.95,35.95],capacity:'6.8',unit:'مليار م³',type:'dam',note:'على الزاب الأسفل — 1959'},
- {name:'سد درينخان',c:[45.70,34.90],capacity:'2.8',unit:'مليار م³',type:'dam',note:'على نهر ديالى — 1961'},
- {name:'سد حمرين',c:[44.60,34.20],capacity:'2.4',unit:'مليار م³',type:'dam',note:'على نهر ديالى — 1981'},
- {name:'بحيرة الثرثار',c:[43.30,34.00],capacity:'85.5',unit:'مليار م³',type:'lake',note:'أكبر منخفض طبيعي — 2,710 كم²'},
- {name:'بحيرة الرزازة',c:[43.20,32.75],capacity:'16.7',unit:'مليار م³',type:'lake',note:'1,620 كم² — مياه مالحة'},
- {name:'بحيرة الحبانية',c:[43.40,33.30],capacity:'3.28',unit:'مليار م³',type:'lake',note:'425 كم² — تغذي الرزازة'}
-];
-
-const MINERALS = [
- {name:'فوسفات عكاشات',en:'Akashat Phosphate',c:[39.85,33.25],type:'phosphate',reserve:'>7 مليار طن',prov:'الأنبار',note:'أكبر احتياطي فوسفات في الشرق الأوسط'},
- {name:'كبريت المشراق',en:'Mishraq Sulfur',c:[43.05,36.55],type:'sulfur',reserve:'من الأكبر عالمياً',prov:'نينوى',note:'رواسب كبريتية ضخمة جنوب الموصل'},
- {name:'نحاس وزاغروس',en:'Zagros Copper',c:[45.20,36.10],type:'copper',reserve:'غير مستغل',prov:'السليمانية/أربيل',note:'معادن نادرة: نحاس، زنك، كروم'}
-];
-
-const RENEWABLES = [
- {name:'الأنبار — شمسي',c:[41.50,33.20],type:'solar',capacity:'53,087 كم² مؤهلة',note:'أعلى إمكانات شمسية'},
- {name:'دهوك — رياح',c:[43.20,37.00],type:'wind',capacity:'رياح جبلية',note:'إمكانات رياح عالية'},
- {name:'ذي قار — هجين',c:[46.20,31.00],type:'hybrid',capacity:'شمس + رياح',note:'نقطة ساخنة للأنظمة الهجينة'},
- {name:'واسط — هجين',c:[45.80,32.50],type:'hybrid',capacity:'شمس + رياح',note:'شرق واسط مؤهل'}
-];
-
-const PIPELINES = [
- {name:'كركوك – جيهان',coords:[[44.39,35.47],[42.20,37.40]],length:'970 كم',capacity:'1.4M برميل/يوم',note:'إلى تركيا'},
- {name:'الاستراتيجي (كركوك–البصرة)',coords:[[44.39,35.47],[44.30,33.30],[44.54,32.54],[47.78,30.50]],length:'~1,000 كم',capacity:'داخلي',note:'يربط الشمال بالجنوب'},
- {name:'بغداد – البصرة',coords:[[44.36,33.31],[45.00,32.00],[46.00,31.00],[47.60,30.46]],length:'~550 كم',capacity:'داخلي',note:'خط رئيسي'}
-];
-
-const PROVINCE_STORIES = {
- 'بغداد':'بغداد، مدينة السلام، تأسست 762م على يد المنصور العباسي. كانت أكبر مدينة في العالم في العصر الذهبي الإسلامي. اليوم: المركز السياسي والاقتصادي، وفيها 9.78 مليون نسمة.',
- 'البصرة':'البصرة، عاصمة العراق الاقتصادية، تأسست 636م. ميناؤها الرئيسي ومصدر النفط الأكبر. تواجه تحديات التصحر وملوحة المياه.',
- 'نينوى':'نينوى، موطن آشوربانيبال ومكتبته الشهيرة. الموصل ثاني أكبر مدن العراق. تضم آثار نينوى والحضر (UNESCO).',
- 'أربيل':'أربيل، أقدم مدينة مأهولة باستمرار. قلعتها (UNESCO 2014) شهدت 6,000 سنة حضارة. عاصمة إقليم كردستان.',
- 'النجف':'النجف، مركز ديني عالمي. مرقد الإمام علي ووادي السلام أكبر مقبرة في العالم. وجهة ملايين الزوار سنوياً.',
- 'كربلاء':'كربلاء، مدينة الإمام الحسين. مسرح واقعة الطف 680م. محطة زيارة عالمية كبرى.',
- 'بابل':'بابل، موطن حمورابي وبوابة عشتار. حدائق بابل المعلقة إحدى عجائب الدنيا. أُدرجت في UNESCO 2019.',
- 'ذي قار':'ذي قار، موطن حضارة أور السومرية (UNESCO 2016). زقورة أور أول ناطحة سحاب في التاريخ.',
- 'ميسان':'ميسان، أرض الأهوار. العمارة مركزها. الأهوار مدرجة في UNESCO وRamsar. تواجه جفافاً حاداً.',
- 'الأنبار':'الأنبار، أكبر المحافظات مساحةً (138,501 كم²). تضم الحضر (UNESCO) وعكاشات للفوسفات.',
- 'كركوك':'كركوك، مدينة النفط والتعدد القومي. حقل بابا كركر من أقدم الحقول. قضية إدارية معلقة منذ 2003.',
- 'دهوك':'دهوك، الجوهرة الجبلية. تضم جبال أزمر وبحيرة دوكان. مركز سياحة طبيعية صاعد.',
- 'السليمانية':'السليمانية، عاصمة الثقافة الكردية. تأسست 1784. موطن جبال حمرين وأزمر.'
+const CONFIG = {
+  iraqCenter: [43.8, 33.2],
+  iraqZoom: 5.5,
+  iraqBounds: [[38.7, 29.0], [48.7, 37.4]],
+  overpassServers: [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.private.coffee/api/interpreter'
+  ],
+  nominatim: 'https://nominatim.openstreetmap.org/search',
+  osrm: 'https://router.project-osrm.org/route/v1/driving/',
+  demTiles: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+  minZoomBuilding: 15,
+  minZoomRoad: 13,
+  minZoomWater: 10,
+  maxFeaturesBuilding: 1200,
+  maxFeaturesRoad: 2200,
+  debounceMove: 1200,
+  gpsTimeout: 12000,
+  isMobile: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)
 };
 
 /* ============================================================
-   2. الحالة العامة
+   2. THEME
    ============================================================ */
-let PROVINCES=[];let selectedIdx=null;let hoveredIdx=null;let terrainOn=true;let labelsOn=true;
-let osmtogeojsonReady=false;let mapLoaded=false;let osmLoaded=false;let map;let userMarker=null;let userLocation=null;
-let buildingsActive=false;let roadsActive=false;let trafficMode=false;let airportsLoaded=false;let aircraftTimer=null;
-let aircraftAborted=false;let destPicking=false;let destinationMarker=null;let routeSources=[];let provinceHandlersRegistered=false;
-let lastBldZoomBucket=-1;
-let unescoActive=false;let oilActive=false;let marshesActive=false;let damsActive=false;let popRiseActive=false;
-let mineralsActive=false;let renewablesActive=false;let pipelinesActive=false;
-let floodLevel=0;
-const floodLevels=[0,2,5,10];
-
-const IRAQ_BOUNDS=[[38.70,29.00],[48.70,37.40]];
-const $=id=>document.getElementById(id);
-const bar=document.querySelector('#bar > i');
+const T = {
+  land: '#f2efe9',
+  water: '#a9d4e0',
+  waterDeep: '#94c2d0',
+  waterLine: '#88b8c8',
+  park: '#c8d8b8',
+  parkDeep: '#b8cfa8',
+  parkLine: '#a8bf98',
+  building: { light:'#ebe2ce', mid:'#d8cdb8', dark:'#c0b5a0', shadow:'#a89a80' },
+  road: {
+    motorway:'#ffffff', trunk:'#fdfaf5', primary:'#f8f6f2',
+    secondary:'#f2eee6', tertiary:'#ede8de',
+    residential:'#f5f2ec', service:'#f8f6f0', casing:'#e0d8c8'
+  },
+  boundary: '#c8bca0',
+  text: '#3a3a3a',
+  textSecondary: '#5a5a5a',
+  textHalo: '#f2efe9',
+  labelHalo: '#ffffff',
+  accent: '#5a8fa8',
+  accentDark: '#3d6f88'
+};
 
 /* ============================================================
-   3. الأدوات المساعدة
+   3. UTILITIES
    ============================================================ */
-function progress(p,txt){if(bar)bar.style.width=Math.min(100,p)+'%';const el=$('loadText');if(el&&txt)el.textContent=txt}
-function setStatus(html){const el=$('status');if(el)el.innerHTML=html}
-let toastTimer=null;
-function toast(msg,ms){const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),ms||3200)}
-function fmtNum(n){if(n===null||n===undefined)return'—';return Number(n).toLocaleString('en-US')}
-let loadingHidden=false;
-function hideLoading(){if(loadingHidden)return;loadingHidden=true;const l=$('loading');if(!l)return;l.style.opacity='0';setTimeout(()=>{l.style.display='none'},550)}
-function withTimeout(promise,ms){return Promise.race([promise,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))])}
-async function fetchWithTimeout(url,ms){const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),ms);try{const res=await fetch(url,{signal:ctrl.signal});clearTimeout(timer);return res}catch(e){clearTimeout(timer);throw e}}
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
 
-function norm(s){return String(s||'').replace(/[أإآٱ]/g,'ا').replace(/[ىئ]/g,'ي').replace(/ؤ/g,'و').replace(/ة/g,'ه').replace(/[\u064B-\u0652\u0640]/g,'').replace(/^ال/,'').replace(/[\s\-_]+/g,'').trim().toLowerCase()}
-const META_INDEX=new Map();PROVINCE_META.forEach(m=>{META_INDEX.set(norm(m.ar),m);META_INDEX.set(norm(m.en),m)});
-function lookupMeta(name){return META_INDEX.get(norm(name))||null}
-
-function getBeforeSymbolId(){
-  if(!map)return undefined;
-  const firstSymbol=map.getStyle().layers.find(l=>l.type==='symbol');
-  return firstSymbol?firstSymbol.id:undefined;
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }
-
-/* ============================================================
-   4. الستايل الاحتياطي والثيم
-   ============================================================ */
-function createFallbackStyle(){
-  return{
-    version:8,
-    glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
-    sources:{'osm-carto':{type:'raster',tiles:['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png','https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],tileSize:512,maxzoom:19}},
-    layers:[{id:'bg',type:'background',paint:{'background-color':'#0a0320'}},{id:'osm-carto-layer',type:'raster',source:'osm-carto',paint:{'raster-opacity':0.9}}]
+function throttle(fn, ms) {
+  let last = 0, timer = null;
+  return (...args) => {
+    const now = Date.now();
+    const remaining = ms - (now - last);
+    if (remaining <= 0) { last = now; fn(...args); }
+    else {
+      clearTimeout(timer);
+      timer = setTimeout(() => { last = Date.now(); fn(...args); }, remaining);
+    }
   };
 }
 
-function applyVividTheme(){
-  if(!map)return;
-  const style=map.getStyle();
-  if(!style||!style.layers)return;
-  style.layers.forEach(layer=>{
-    const id=layer.id;
-    const srcLayer=layer['source-layer']||'';
-    const type=layer.type;
-    try{
-      if(layer.source&&!map.getSource(layer.source))return;
-      if(type==='background'){map.setPaintProperty(id,'background-color','#0a0320');return}
-      if(!srcLayer)return;
-      if(srcLayer==='water'){if(type==='fill'){map.setPaintProperty(id,'fill-color','#00d9ff');map.setPaintProperty(id,'fill-opacity',0.9)}else if(type==='line'){map.setPaintProperty(id,'line-color','#00d9ff')}return}
-      if(srcLayer==='building'&&type==='fill'){map.setPaintProperty(id,'fill-color','#ff006e');map.setPaintProperty(id,'fill-opacity',0.85);return}
-      if((srcLayer==='landcover'||srcLayer==='landuse'||srcLayer==='park')&&type==='fill'){map.setPaintProperty(id,'fill-color','#06ffa5');map.setPaintProperty(id,'fill-opacity',0.5);return}
-      if(srcLayer==='transportation'){let color='#b537f2';if(/motorway/i.test(id))color='#ff006e';else if(/trunk/i.test(id))color='#fb5607';else if(/primary/i.test(id))color='#ffe600';else if(/secondary/i.test(id))color='#00f5ff';if(type==='line'){map.setPaintProperty(id,'line-color',color);map.setPaintProperty(id,'line-opacity',0.92)}return}
-      if(srcLayer==='boundary'&&type==='line'){map.setPaintProperty(id,'line-color','#ffe600');return}
-      if(srcLayer==='place'&&type==='symbol'){try{map.setPaintProperty(id,'text-color','#ffffff')}catch(e){};try{map.setPaintProperty(id,'text-halo-color','#0a0320')}catch(e){}}
-    }catch(err){}
-  });
+let toastTimer;
+function toast(msg, ms = 3000) {
+  const el = $('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
 }
 
-function addVividBuildings(){
-  if(!map)return;
-  const style=map.getStyle();
-  if(!style||!style.layers)return;
-  if(map.getLayer('vivid-buildings'))return;
-  let buildingSrc=null;
-  style.layers.forEach(l=>{if(l['source-layer']==='building'&&l.source)buildingSrc=l.source});
-  if(!buildingSrc)buildingSrc='openmaptiles';
-  const firstSymbol=style.layers.find(l=>l.type==='symbol');
-  const beforeId=firstSymbol?firstSymbol.id:undefined;
-  const layer={id:'vivid-buildings',type:'fill-extrusion',source:buildingSrc,'source-layer':'building',minzoom:13.5,paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],0],0,'#8338EC',15,'#b537f2',40,'#ff006e',80,'#fb5607',150,'#ffe600'],'fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],8],'fill-extrusion-base':0,'fill-extrusion-opacity':0.9,'fill-extrusion-vertical-gradient':true}};
-  try{if(beforeId)map.addLayer(layer,beforeId);else map.addLayer(layer)}catch(err){}
+function setStatus(html) {
+  const el = $('status-text');
+  if (el) el.innerHTML = html;
 }
 
-function applyFullVividTheme(){try{applyVividTheme()}catch(e){};try{addVividBuildings()}catch(e){}}
-function addLayerSafe(layer,beforeId){try{if(beforeId&&map.getLayer(beforeId))map.addLayer(layer,beforeId);else map.addLayer(layer)}catch(e){try{map.addLayer(layer)}catch(e2){console.warn(e2)}}}
+function progress(p, hint) {
+  const bar = $('load-bar'); const hintEl = $('load-hint');
+  if (bar) bar.style.width = Math.min(100, p) + '%';
+  if (hintEl && hint) hintEl.textContent = hint;
+}
 
-/* ============================================================
-   5. OSM / Overpass
-   ============================================================ */
-function ensureOSMToGeoJSON(){
-  if(osmtogeojsonReady)return Promise.resolve();
-  return new Promise((resolve,reject)=>{
-    if(window.osmtogeojson){osmtogeojsonReady=true;return resolve()}
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/osmtogeojson.js';
-    s.onload=()=>{osmtogeojsonReady=true;resolve()};
-    s.onerror=()=>reject(new Error('فشل تحميل osmtogeojson'));
+let loadingHidden = false;
+function hideLoading() {
+  if (loadingHidden) return;
+  loadingHidden = true;
+  const l = $('loading');
+  if (!l) return;
+  l.classList.add('hidden');
+  setTimeout(() => { l.style.display = 'none'; }, 650);
+}
+
+async function fetchWithTimeout(url, opts = {}, ms = 15000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { ...opts, signal: ctrl.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) { clearTimeout(timer); throw e; }
+}
+
+async function fetchOverpass(query, ms = 20000) {
+  for (const server of CONFIG.overpassServers) {
+    try {
+      const res = await fetchWithTimeout(server, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'data=' + encodeURIComponent(query)
+      }, ms);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && data.elements && data.elements.length) return data;
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+
+let osmtogeojsonLoaded = false;
+function ensureOSMToGeoJSON() {
+  if (osmtogeojsonLoaded || window.osmtogeojson) {
+    osmtogeojsonLoaded = true;
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/osmtogeojson.js';
+    s.onload = () => { osmtogeojsonLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('load fail'));
     document.head.appendChild(s);
   });
 }
-const OVERPASS_SERVERS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter'];
-const OVERPASS_QUERY=`[out:json][timeout:25];area["ISO3166-1"="IQ"]["admin_level"="2"]->.a;relation["boundary"="administrative"]["admin_level"="4"](area.a);out body geom;`;
-async function fetchOverpass(query,server,timeoutMs){const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),timeoutMs);try{const res=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query),signal:ctrl.signal});clearTimeout(timer);if(!res.ok)throw new Error('HTTP '+res.status);return await res.json()}catch(err){clearTimeout(timer);throw err}}
-async function fetchOverpassDynamic(query,timeoutMs=15000){for(const server of OVERPASS_SERVERS){try{const data=await fetchOverpass(query,server,timeoutMs);if(data&&Array.isArray(data.elements)&&data.elements.length)return data}catch(err){}}return null}
-async function loadProvincesFromOSM(){let lastErr=null;for(let si=0;si<OVERPASS_SERVERS.length;si++){try{const data=await fetchOverpass(OVERPASS_QUERY,OVERPASS_SERVERS[si],8000);if(data&&Array.isArray(data.elements)&&data.elements.length)return data;lastErr=new Error('empty')}catch(err){lastErr=err}}throw lastErr||new Error('تعذر الاتصال')}
 
-function bboxOf(geometry){let minX=180,minY=90,maxX=-180,maxY=-90;(function walk(c){if(typeof c[0]==='number'){if(c[0]<minX)minX=c[0];if(c[0]>maxX)maxX=c[0];if(c[1]<minY)minY=c[1];if(c[1]>maxY)maxY=c[1]}else{for(let i=0;i<c.length;i++)walk(c[i])}})(geometry.coordinates);return[minX,minY,maxX,maxY]}
+function norm(s) {
+  return String(s || '')
+    .replace(/[أإآٱ]/g, 'ا').replace(/[ىئ]/g, 'ي').replace(/ؤ/g, 'و').replace(/ة/g, 'ه')
+    .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/^ال/, '').replace(/[\s\-_]+/g, '').trim().toLowerCase();
+}
+function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString('en-US'); }
 
 /* ============================================================
-   6. بناء المحافظات
+   4. PROVINCES DATA
    ============================================================ */
-function buildProvinces(geojson){
-  const list=[];
-  const features=(geojson&&geojson.features)||[];
-  features.forEach((f,i)=>{
-    if(!f.geometry)return;
-    const t=f.geometry.type;
-    if(t!=='Polygon'&&t!=='MultiPolygon')return;
-    const tags=(f.properties&&f.properties.tags)||{};
-    const rawName=tags['name:ar']||tags.name||tags['name:en']||('محافظة '+(i+1));
-    const meta=lookupMeta(rawName)||lookupMeta(tags['name:en'])||lookupMeta(tags.name)||null;
-    const bb=bboxOf(f.geometry);
-    const bboxCenter=[(bb[0]+bb[2])/2,(bb[1]+bb[3])/2];
-    let osmId=null;
-    if(f.properties&&f.properties.id!=null)osmId=f.properties.id;
-    else if(f.id!=null)osmId=f.id;
-    list.push({
-      idx:list.length,
-      name:meta?meta.ar:rawName,
-      nameEn:tags['name:en']||(meta?meta.en:'')||'',
-      color:COLORS[list.length%COLORS.length],
-      center:meta?meta.c:bboxCenter,
-      bbox:bb,
-      cap:meta?meta.cap:'',
-      area:meta?meta.area:null,
-      pop:(meta&&meta.pop)?meta.pop:0,
-      note:meta?meta.note:'',
-      geometry:f.geometry,
-      osmId:osmId
-    });
+const PROVINCES_DATA = [
+  { ar:'بغداد', en:'Baghdad', cap:'بغداد', area:4555, pop:9780429, c:[44.366,33.315], note:'العاصمة الاتحادية ومركز الثقل السياسي والاقتصادي.' },
+  { ar:'البصرة', en:'Basra', cap:'البصرة', area:19070, pop:3664168, c:[47.783,30.508], note:'الميناء الرئيسي وقلب العراق الاقتصادي البحري.' },
+  { ar:'نينوى', en:'Nineveh', cap:'الموصل', area:37323, pop:4261980, c:[43.118,36.335], note:'أكبر المحافظات سكاناً في شمال العراق.' },
+  { ar:'أربيل', en:'Erbil', cap:'أربيل', area:15074, pop:2517534, c:[44.009,36.191], note:'عاصمة إقليم كردستان وأقدم المدن المأهولة.' },
+  { ar:'النجف', en:'Najaf', cap:'النجف', area:28824, pop:1950833, c:[44.333,32.000], note:'مركز ديني عالمي وموطن مرقد الإمام علي.' },
+  { ar:'كربلاء', en:'Karbala', cap:'كربلاء', area:5034, pop:1754065, c:[44.024,32.616], note:'مدينة الإمام الحسين ومحطة زيارة عالمية.' },
+  { ar:'بابل', en:'Babylon', cap:'الحلة', area:5603, pop:2482324, c:[44.433,32.483], note:'موطن حضارة بابل وآثارها المدرجة عالمياً.' },
+  { ar:'الأنبار', en:'Anbar', cap:'الرمادي', area:138501, pop:2004418, c:[43.300,33.425], note:'أكبر محافظات العراق مساحةً.' },
+  { ar:'ديالى', en:'Diyala', cap:'بعقوبة', area:17685, pop:1934504, c:[44.643,33.745], note:'بوابة العراق الشرقية وسلة حمضيات البلاد.' },
+  { ar:'ذي قار', en:'Dhi Qar', cap:'الناصرية', area:12900, pop:2499468, c:[46.257,31.043], note:'موطن حضارة أور السومرية والزقورة الشهيرة.' },
+  { ar:'ميسان', en:'Maysan', cap:'العمارة', area:16072, pop:1294503, c:[47.144,31.835], note:'أرض الأهوار والمسطحات المائية الجنوبية.' },
+  { ar:'المثنى', en:'Muthanna', cap:'السماوة', area:51740, pop:1043087, c:[45.280,31.311], note:'محافظة صحراوية واسعة على الحدود الجنوبية.' },
+  { ar:'القادسية', en:'Qadisiyyah', cap:'الديوانية', area:8153, pop:1477310, c:[44.925,31.992], note:'سلة الحبوب في الفرات الأوسط.' },
+  { ar:'واسط', en:'Wasit', cap:'الكوت', area:17153, pop:1643406, c:[45.818,32.512], note:'تحتضن سد الكوت وأراضي زراعية خصبة.' },
+  { ar:'صلاح الدين', en:'Saladin', cap:'تكريت', area:24751, pop:1774542, c:[43.678,34.607], note:'محافظة تاريخية على ضفاف دجلة.' },
+  { ar:'كركوك', en:'Kirkuk', cap:'كركوك', area:9679, pop:2034627, c:[44.392,35.468], note:'مدينة النفط والتعدد القومي.' },
+  { ar:'دهوك', en:'Duhok', cap:'دهوك', area:6553, pop:1599871, c:[42.988,36.867], note:'محافظة جبلية خلابة على الحدود الشمالية.' },
+  { ar:'السليمانية', en:'Sulaymaniyah', cap:'السليمانية', area:17023, pop:2401724, c:[45.436,35.561], note:'مركز ثقافي كردي وموطن جبال حمرين.' }
+];
+
+/* ============================================================
+   5. STATE
+   ============================================================ */
+const state = {
+  map: null,
+  ready: false,
+  selectedIdx: null,
+  hoveredIdx: null,
+  buildingsActive: true,
+  roadsActive: true,
+  waterActive: true,
+  parksActive: true,
+  labelsActive: true,
+  terrainActive: true,
+  userLocation: null,
+  userMarker: null,
+  destination: null,
+  destMarker: null,
+  routeSources: [],
+  buildingRequestId: 0,
+  roadRequestId: 0,
+  lastBuildingBBox: null,
+  lastRoadBBox: null,
+  buildingsVisible: false,
+  routeMode: false
+};
+
+/* ============================================================
+   6. STYLE — Calm light theme applied to Liberty
+   ============================================================ */
+function buildFallbackStyle() {
+  return {
+    version: 8,
+    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+    sources: {
+      'carto-light': {
+        type: 'raster',
+        tiles: [
+          'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+          'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+          'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'
+        ],
+        tileSize: 512, maxzoom: 19
+      }
+    },
+    layers: [
+      { id: 'bg', type: 'background', paint: { 'background-color': T.land } },
+      { id: 'carto-base', type: 'raster', source: 'carto-light',
+        paint: { 'raster-opacity': 0.95, 'raster-saturation': -0.15, 'raster-brightness-max': 0.98 } }
+    ]
+  };
+}
+
+/**
+ * Applies the calm light theme to a vector style in-place.
+ * Uses source-layer names from the OpenMapTiles schema (used by Liberty).
+ */
+function applyCalmTheme(map) {
+  if (!map) return;
+  const style = map.getStyle();
+  if (!style || !style.layers) return;
+
+  const set = (id, prop, val) => { try { map.setPaintProperty(id, prop, val); } catch (e) {} };
+  const setLayout = (id, prop, val) => { try { map.setLayoutProperty(id, prop, val); } catch (e) {} };
+
+  style.layers.forEach(layer => {
+    const id = layer.id;
+    const sl = layer['source-layer'] || '';
+    const type = layer.type;
+
+    try {
+      // Background
+      if (type === 'background') {
+        set(id, 'background-color', T.land);
+        return;
+      }
+
+      // Water polygons
+      if (sl === 'water' && type === 'fill') {
+        set(id, 'fill-color', T.water);
+        set(id, 'fill-opacity', 0.92);
+        return;
+      }
+      if (sl === 'water' && type === 'line') {
+        set(id, 'line-color', T.waterLine);
+        return;
+      }
+      if (sl === 'waterway' && type === 'line') {
+        set(id, 'line-color', T.water);
+        set(id, 'line-opacity', 0.9);
+        return;
+      }
+
+      // Parks / green
+      if ((sl === 'park' || sl === 'landcover' || sl === 'landuse') && type === 'fill') {
+        const isGreen = sl === 'park' || /grass|forest|wood|park|meadow|scrub/i.test(id + ' ' + sl);
+        if (isGreen) {
+          set(id, 'fill-color', T.park);
+          set(id, 'fill-opacity', 0.85);
+        } else if (/sand|beach|desert/i.test(id + ' ' + sl)) {
+          set(id, 'fill-color', '#ece4d4');
+          set(id, 'fill-opacity', 0.7);
+        }
+        return;
+      }
+
+      // Buildings — subtle base footprint (3D buildings overlay this)
+      if (sl === 'building' && type === 'fill') {
+        set(id, 'fill-color', T.building.light);
+        set(id, 'fill-opacity', 0.55);
+        set(id, 'fill-outline-color', 'rgba(200,185,160,0.5)');
+        return;
+      }
+
+      // Roads
+      if (sl === 'transportation' && type === 'line') {
+        if (/casing|outline|bridge.casing|tunnel.casing/i.test(id)) {
+          set(id, 'line-color', T.road.casing);
+          set(id, 'line-opacity', 0.9);
+          return;
+        }
+        if (/rail/i.test(id)) {
+          set(id, 'line-color', '#c8bfa8');
+          return;
+        }
+        let color = T.road.residential;
+        let baseW = 1.2;
+        if (/motorway/i.test(id)) { color = T.road.motorway; baseW = 4.5; }
+        else if (/trunk/i.test(id)) { color = T.road.trunk; baseW = 4; }
+        else if (/primary/i.test(id)) { color = T.road.primary; baseW = 3.2; }
+        else if (/secondary/i.test(id)) { color = T.road.secondary; baseW = 2.6; }
+        else if (/tertiary/i.test(id)) { color = T.road.tertiary; baseW = 2; }
+        else if (/service|footway|path|pedestrian|cycleway|steps/i.test(id)) {
+          color = T.road.service; baseW = 0.8;
+        }
+        set(id, 'line-color', color);
+        set(id, 'line-width', ['interpolate', ['linear'], ['zoom'], 8, baseW * 0.4, 14, baseW, 18, baseW * 1.15]);
+        set(id, 'line-opacity', 0.98);
+        return;
+      }
+
+      // Bridges / tunnels
+      if (sl === 'transportation' && type === 'line' && /bridge/i.test(id)) {
+        set(id, 'line-color', '#fdfdfb');
+        return;
+      }
+      if (sl === 'transportation' && type === 'line' && /tunnel/i.test(id)) {
+        set(id, 'line-color', '#d8d0c0');
+        set(id, 'line-dasharray', [2, 1]);
+        return;
+      }
+
+      // Boundaries
+      if (sl === 'boundary' && type === 'line') {
+        set(id, 'line-color', T.boundary);
+        set(id, 'line-opacity', 0.8);
+        return;
+      }
+
+      // All labels
+      if (type === 'symbol') {
+        try { map.setPaintProperty(id, 'text-color', T.text); } catch (e) {}
+        try { map.setPaintProperty(id, 'text-halo-color', T.textHalo); } catch (e) {}
+        try { map.setPaintProperty(id, 'text-halo-width', 1.4); } catch (e) {}
+        try { map.setPaintProperty(id, 'text-halo-blur', 0.4); } catch (e) {}
+        // Road names get a slightly lighter style
+        if (sl === 'transportation_name') {
+          try { map.setPaintProperty(id, 'text-color', T.textSecondary); } catch (e) {}
+          try { map.setPaintProperty(id, 'text-size', ['interpolate', ['linear'], ['zoom'], 14, 9, 18, 12]); } catch (e) {}
+        }
+        // Force Arabic name when available
+        try {
+          const tf = layer.layout && layer.layout['text-field'];
+          if (tf && JSON.stringify(tf).includes('"name"') && !JSON.stringify(tf).includes('"name:ar"')) {
+            map.setLayoutProperty(id, 'text-field', ['coalesce', ['get', 'name:ar'], ['get', 'name']]);
+          }
+        } catch (e) {}
+      }
+    } catch (e) { /* ignore individual layer errors */ }
   });
-  if(!list.length){
-    PROVINCE_META.forEach((m,i)=>{
-      list.push({idx:i,name:m.ar,nameEn:m.en,color:COLORS[i%COLORS.length],center:m.c,bbox:[m.c[0]-0.25,m.c[1]-0.25,m.c[0]+0.25,m.c[1]+0.25],cap:m.cap,area:m.area,pop:m.pop,note:m.note,geometry:null,osmId:null});
+
+  // Sky + light
+  try {
+    map.setLight({
+      anchor: 'viewport',
+      color: '#fffaf0',
+      intensity: 0.4,
+      position: [1.5, 90, 55]
     });
+  } catch (e) {}
+
+  try {
+    map.setFog({
+      range: [1.5, 8], color: '#f2efe9', 'horizon-blend': 0.08,
+      'high-color': '#e8e0d0', 'space-color': '#f2efe9', 'star-intensity': 0
+    });
+  } catch (e) {}
+}
+
+/* ============================================================
+   7. MAP INIT
+   ============================================================ */
+async function initMap() {
+  try {
+    maplibregl.setRTLTextPlugin(
+      'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.3.0/mapbox-gl-rtl-text.js',
+      null, true
+    );
+  } catch (e) {}
+
+  progress(10, 'جاري تحميل الخريطة الأساسية...');
+
+  let style = null;
+  try {
+    const res = await fetchWithTimeout('https://tiles.openfreemap.org/styles/liberty', {}, 12000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    style = await res.json();
+    style.glyphs = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+  } catch (err) {
+    console.warn('[Map] Liberty style failed, using fallback:', err);
+    style = buildFallbackStyle();
+    toast('⚠️ تم استخدام الستايل الاحتياطي (بدون طبقات متجهة)', 5000);
   }
-  return list;
-}
 
-function clearMapData(){
-  PROVINCES.forEach(p=>{
-    if(p.marker){try{p.marker.remove()}catch(e){}}
+  progress(25, 'جاري تهيئة المحرك...');
+
+  try {
+    state.map = new maplibregl.Map({
+      container: 'map',
+      style: style,
+      center: CONFIG.iraqCenter,
+      zoom: CONFIG.iraqZoom,
+      pitch: 48,
+      bearing: 0,
+      maxPitch: 85,
+      minZoom: 4,
+      maxZoom: 18.5,
+      maxBounds: [[36, 27], [51, 39]],
+      antialias: true,
+      attributionControl: false,
+      preserveDrawingBuffer: false,
+      fadeDuration: 200
+    });
+  } catch (err) {
+    console.error('[Map] init error', err);
+    progress(100, '⚠️ تعذر تهيئة الخريطة');
+    setTimeout(hideLoading, 800);
+    return;
+  }
+
+  const map = state.map;
+
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+  map.addControl(new maplibregl.ScaleControl({ unit: 'metric', maxWidth: 120 }), 'bottom-right');
+
+  map.on('error', e => {
+    const msg = e && e.error && e.error.message;
+    if (msg && !/tile|404|fetch|abort/i.test(msg)) console.warn('[Map] error', msg);
   });
-  ['province-border','province-glow','province-glow2','province-3d'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-  try{if(map.getSource('provinces'))map.removeSource('provinces')}catch(e){}
-  const list=$('provList');if(list)list.innerHTML='';
-  selectedIdx=null;hoveredIdx=null;
+
+  map.on('style.load', () => {
+    try { applyCalmTheme(map); } catch (e) {}
+  });
+
+  map.on('load', () => {
+    state.ready = true;
+    progress(45, 'جاري إعداد التضاريس...');
+    try { setupTerrain(); } catch (e) {}
+    progress(60, 'جاري تلوين الخريطة...');
+    try { applyCalmTheme(map); } catch (e) {}
+    progress(75, 'جاري رسم المحافظات...');
+    try { initProvinces(); } catch (e) {}
+    progress(90, 'جاري تجهيز الأسماء...');
+    try { ensureBuilding3DLayer(); } catch (e) {}
+    progress(100, 'جاهز!');
+    setStatus('جاهز — ' + PROVINCES_DATA.length + ' محافظة');
+    setTimeout(hideLoading, 400);
+
+    // Intro camera
+    setTimeout(() => {
+      map.easeTo({ center: [43.8, 33.2], zoom: 5.8, pitch: 50, bearing: 0, duration: 1400 });
+    }, 200);
+
+    // Re-apply theme after tiles settle
+    setTimeout(() => { try { applyCalmTheme(map); } catch (e) {} }, 2500);
+  });
+
+  // Move handlers
+  map.on('moveend', debounce(() => {
+    if (state.buildingsActive) loadBuildingsForViewport(true);
+    if (state.roadsActive) loadRoadsForViewport(true);
+    if (state.waterActive) loadWaterForViewport(true);
+    if (state.parksActive) loadParksForViewport(true);
+  }, CONFIG.debounceMove));
+
+  map.on('click', e => {
+    if (state.routeMode) {
+      state.routeMode = false;
+      map.getCanvas().style.cursor = '';
+      $('btn-route').classList.remove('on');
+      setDestination(e.lngLat.lng, e.lngLat.lat);
+      return;
+    }
+    // Deselect province if click on empty area
+    const hits = map.queryRenderedFeatures(e.point, { layers: ['province-3d'].filter(id => map.getLayer(id)) });
+    if (!hits.length) deselectProvince();
+  });
+
+  // Timeout fallbacks
+  setTimeout(() => {
+    if (!state.ready) { progress(100, '⚠️ تأخر التحميل — اضغط لإعادة المحاولة'); setTimeout(hideLoading, 1200); }
+  }, 20000);
 }
 
-/* ============================================================
-   7. طبقات المحافظات
-   ============================================================ */
-function addProvinceLayers(){
-  const withGeom=PROVINCES.filter(p=>p.geometry);
-  if(withGeom.length){
-    const fc={type:'FeatureCollection',features:withGeom.map(p=>({type:'Feature',id:p.idx,geometry:p.geometry,properties:{idx:p.idx,name:p.name,color:p.color,pop:p.pop}}))};
-    map.addSource('provinces',{type:'geojson',data:fc});
+function setupTerrain() {
+  const map = state.map;
+  try {
+    map.addSource('iraq-dem', {
+      type: 'raster-dem',
+      tiles: [CONFIG.demTiles],
+      tileSize: 256, encoding: 'terrarium', maxzoom: 14
+    });
+    map.setTerrain({ source: 'iraq-dem', exaggeration: CONFIG.isMobile ? 1.0 : 1.25 });
+  } catch (e) { console.warn('[Terrain] setup failed', e); }
+
+  try {
     map.addLayer({
-      id:'province-3d',type:'fill-extrusion',source:'provinces',
-      paint:{
-        'fill-extrusion-color':['case',['boolean',['feature-state','selected'],false],'#FFFFFF',['boolean',['feature-state','hover'],false],'#FFE600',['get','color']],
-        'fill-extrusion-height':['case',['boolean',['feature-state','selected'],false],3400,['boolean',['feature-state','hover'],false],2600,1700],
-        'fill-extrusion-base':0,'fill-extrusion-opacity':0.78,'fill-extrusion-vertical-gradient':true
+      id: 'iraq-hillshade',
+      type: 'hillshade',
+      source: 'iraq-dem',
+      paint: {
+        'hillshade-exaggeration': 0.35,
+        'hillshade-shadow-color': '#c8bca8',
+        'hillshade-highlight-color': '#ffffff',
+        'hillshade-accent-color': '#a89a80'
       }
     });
-    map.addLayer({id:'province-glow2',type:'line',source:'provinces',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':['get','color'],'line-width':16,'line-opacity':0.28,'line-blur':14}});
-    map.addLayer({id:'province-glow',type:'line',source:'provinces',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':['get','color'],'line-width':8,'line-opacity':0.55,'line-blur':5}});
-    map.addLayer({id:'province-border',type:'line',source:'provinces',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':['case',['boolean',['feature-state','selected'],false],'#FFE600',['boolean',['feature-state','hover'],false],'#FFFFFF','#E8F4FF'],'line-width':['case',['boolean',['feature-state','selected'],false],4,['boolean',['feature-state','hover'],false],3.5,2.2],'line-opacity':1}});
-  }
-  if(!provinceHandlersRegistered){
-    map.on('mousemove','province-3d',e=>{
-      if(destPicking)return;
-      if(!e.features||!e.features.length)return;
-      map.getCanvas().style.cursor='pointer';
-      const id=e.features[0].id;
-      if(hoveredIdx===id)return;
-      if(hoveredIdx!==null){try{map.setFeatureState({source:'provinces',id:hoveredIdx},{hover:false})}catch(err){}}
-      hoveredIdx=id;
-      try{map.setFeatureState({source:'provinces',id:hoveredIdx},{hover:true})}catch(err){}
-    });
-    map.on('mouseleave','province-3d',()=>{
-      if(destPicking)return;
-      map.getCanvas().style.cursor='';
-      if(hoveredIdx!==null){try{map.setFeatureState({source:'provinces',id:hoveredIdx},{hover:false})}catch(err){}hoveredIdx=null}
-    });
-    map.on('click','province-3d',e=>{if(destPicking)return;if(!e.features||!e.features.length)return;selectProvince(e.features[0].id)});
-    map.on('click',e=>{if(destPicking)return;if(!map.getLayer('province-3d'))return;const hits=map.queryRenderedFeatures(e.point,{layers:['province-3d']});if(!hits.length)deselectProvince()});
-    provinceHandlersRegistered=true;
-  }
-  PROVINCES.forEach(p=>createNode(p));
+  } catch (e) {}
+}
+
+/* ============================================================
+   8. PROVINCES LAYER
+   ============================================================ */
+function initProvinces() {
+  const map = state.map;
+
+  // Load province boundaries from Overpass
+  (async () => {
+    try {
+      const query = `[out:json][timeout:25];
+        area["ISO3166-1"="IQ"]["admin_level"="2"]->.a;
+        relation["boundary"="administrative"]["admin_level"="4"](area.a);
+        out body geom;`;
+      const data = await fetchOverpass(query, 20000);
+      if (!data || !data.elements) throw new Error('no data');
+      await ensureOSMToGeoJSON();
+      let gj = window.osmtogeojson(data, { flatProperties: false });
+      if (gj && typeof gj.then === 'function') gj = await gj;
+      buildProvinceLayersFromGeoJSON(gj);
+      setStatus('جاهز — ' + PROVINCES_DATA.length + ' محافظة');
+    } catch (e) {
+      console.warn('[Provinces] falling back to markers only', e);
+      buildProvinceMarkers();
+    }
+  })();
+
   renderProvinceList();
 }
 
-function createNode(p){
-  const el=document.createElement('div');el.className='node';
-  const dot=document.createElement('span');dot.className='dot';
-  dot.style.background=`radial-gradient(circle at 35% 35%, #fff, ${p.color} 45%, #ff006e)`;
-  dot.style.boxShadow=`0 0 12px ${p.color}, 0 0 26px #ff006e, 0 0 40px ${p.color}88`;
-  el.appendChild(dot);
-  const lbl=document.createElement('span');lbl.className='node-label';lbl.textContent=p.name;
-  lbl.style.borderColor=p.color;
-  lbl.style.boxShadow=`0 4px 16px ${p.color}88, 0 0 16px ${p.color}44`;
-  el.appendChild(lbl);
-  el.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();selectProvince(p.idx)});
-  const marker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(p.center).addTo(map);
-  p.marker=marker;p.labelEl=lbl;
+function buildProvinceLayersFromGeoJSON(gj) {
+  const map = state.map;
+  if (!gj || !gj.features) { buildProvinceMarkers(); return; }
+
+  const features = gj.features.filter(f => f.geometry &&
+    (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'));
+
+  if (!features.length) { buildProvinceMarkers(); return; }
+
+  // Match each feature to our known province data by name
+  const merged = features.map((f, i) => {
+    const tags = (f.properties && f.properties.tags) || {};
+    const rawName = tags['name:ar'] || tags.name || tags['name:en'] || ('محافظة ' + (i + 1));
+    const meta = PROVINCES_DATA.find(p =>
+      norm(p.ar) === norm(rawName) ||
+      norm(p.en) === norm(tags['name:en'] || '') ||
+      norm(p.en) === norm(tags.name || '')
+    );
+    return {
+      type: 'Feature',
+      id: i,
+      geometry: f.geometry,
+      properties: {
+        idx: i,
+        name: meta ? meta.ar : rawName,
+        nameEn: meta ? meta.en : (tags['name:en'] || ''),
+        pop: meta ? meta.pop : 0,
+        area: meta ? meta.area : 0,
+        cap: meta ? meta.cap : '',
+        note: meta ? meta.note : '',
+        color: '#5a8fa8'
+      }
+    };
+  });
+
+  // Store for reference
+  window.__PROVINCE_FEATURES = merged;
+
+  const fc = { type: 'FeatureCollection', features: merged };
+  map.addSource('provinces', { type: 'geojson', data: fc });
+
+  // Subtle borders only — no neon 3D fill for provinces
+  map.addLayer({
+    id: 'province-border',
+    type: 'line',
+    source: 'provinces',
+    paint: {
+      'line-color': T.boundary,
+      'line-width': 1.5,
+      'line-opacity': 0.7
+    }
+  });
+
+  // Soft inner highlight on hover/select
+  map.addLayer({
+    id: 'province-highlight',
+    type: 'line',
+    source: 'provinces',
+    paint: {
+      'line-color': ['case',
+        ['boolean', ['feature-state', 'selected'], false], T.accentDark,
+        ['boolean', ['feature-state', 'hover'], false], T.accent,
+        'rgba(0,0,0,0)'],
+      'line-width': ['case',
+        ['boolean', ['feature-state', 'selected'], false], 3,
+        ['boolean', ['feature-state', 'hover'], false], 2.5,
+        0],
+      'line-opacity': 0.9
+    }
+  });
+
+  // Click handling
+  map.on('mousemove', 'province-border', e => {
+    map.getCanvas().style.cursor = 'pointer';
+    if (!e.features || !e.features.length) return;
+    const id = e.features[0].id;
+    if (state.hoveredIdx === id) return;
+    if (state.hoveredIdx !== null) {
+      try { map.setFeatureState({ source: 'provinces', id: state.hoveredIdx }, { hover: false }); } catch (err) {}
+    }
+    state.hoveredIdx = id;
+    try { map.setFeatureState({ source: 'provinces', id }, { hover: true }); } catch (err) {}
+  });
+  map.on('mouseleave', 'province-border', () => {
+    map.getCanvas().style.cursor = '';
+    if (state.hoveredIdx !== null) {
+      try { map.setFeatureState({ source: 'provinces', id: state.hoveredIdx }, { hover: false }); } catch (err) {}
+      state.hoveredIdx = null;
+    }
+  });
+  map.on('click', 'province-border', e => {
+    if (!e.features || !e.features.length) return;
+    selectProvince(Number(e.features[0].id));
+  });
+
+  // Create province markers (labels)
+  buildProvinceMarkers();
 }
 
-function renderProvinceList(){
-  const box=$('provList');if(!box)return;box.innerHTML='';
-  PROVINCES.slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(p=>{
-    const row=document.createElement('div');row.className='provItem';row.dataset.idx=p.idx;
-    const sw=document.createElement('span');sw.className='swatch';
-    sw.style.background=`linear-gradient(135deg, ${p.color}, #ff006e)`;sw.style.color=p.color;
-    const tx=document.createElement('span');tx.className='txt';tx.textContent=p.name;
-    row.appendChild(sw);row.appendChild(tx);
-    row.addEventListener('click',()=>selectProvince(p.idx));
+function buildProvinceMarkers() {
+  const map = state.map;
+  PROVINCES_DATA.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'province-marker';
+    el.style.cssText = 'cursor:pointer;pointer-events:auto;';
+    el.innerHTML = `<div style="
+      background:rgba(255,253,250,.95);
+      border:1px solid #e0d8c8;
+      border-radius:14px;padding:3px 9px;
+      font-size:11px;font-weight:600;color:#3d6f88;
+      box-shadow:0 2px 8px rgba(60,50,30,.12);
+      white-space:nowrap;transform:translate(-50%,-50%);">${p.ar}</div>`;
+
+    el.addEventListener('click', ev => { ev.stopPropagation(); selectProvince(i); });
+
+    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat(p.c).addTo(map);
+    p.marker = marker;
+  });
+}
+
+function renderProvinceList() {
+  const box = $('prov-list');
+  if (!box) return;
+  box.innerHTML = '';
+  const sorted = [...PROVINCES_DATA].sort((a, b) => a.ar.localeCompare(b.ar, 'ar'));
+  sorted.forEach(p => {
+    const idx = PROVINCES_DATA.indexOf(p);
+    const row = document.createElement('div');
+    row.className = 'prov-item';
+    row.dataset.idx = idx;
+    row.innerHTML = '<span class="dot-mini"></span><span>' + p.ar + '</span>';
+    row.addEventListener('click', () => selectProvince(idx));
     box.appendChild(row);
   });
-  const cnt=$('provCount');if(cnt)cnt.textContent=PROVINCES.length+' محافظة';
+  const cnt = $('prov-count');
+  if (cnt) cnt.textContent = PROVINCES_DATA.length + ' محافظة';
 }
 
-function syncActiveItem(idx){
-  document.querySelectorAll('.provItem').forEach(el=>{el.classList.toggle('active',Number(el.dataset.idx)===idx)});
-  const active=document.querySelector('.provItem.active');
-  if(active)active.scrollIntoView({block:'nearest',behavior:'smooth'});
-}
+function selectProvince(idx) {
+  const p = PROVINCES_DATA[idx];
+  if (!p) return;
+  const map = state.map;
 
-const searchInput=$('search');
-if(searchInput){
-  searchInput.addEventListener('input',e=>{
-    const q=norm(e.target.value);
-    document.querySelectorAll('.provItem').forEach(el=>{
-      const p=PROVINCES.find(x=>x.idx===Number(el.dataset.idx));
-      if(!p)return;
-      const hit=!q||norm(p.name).includes(q)||norm(p.nameEn).includes(q);
-      el.style.display=hit?'flex':'none';
-    });
+  if (state.selectedIdx !== null) {
+    try { map.setFeatureState({ source: 'provinces', id: state.selectedIdx }, { selected: false }); } catch (e) {}
+  }
+  state.selectedIdx = idx;
+  try { map.setFeatureState({ source: 'provinces', id: idx }, { selected: true }); } catch (e) {}
+
+  // Update sidebar
+  document.querySelectorAll('.prov-item').forEach(el => {
+    el.classList.toggle('active', Number(el.dataset.idx) === idx);
+  });
+
+  // Fill panel
+  $('p-name').textContent = p.ar;
+  $('p-en').textContent = p.en.toUpperCase();
+  $('p-info').textContent = p.note;
+
+  const grid = $('p-stats');
+  grid.innerHTML = '';
+  [
+    ['المركز', p.cap],
+    ['المساحة', fmtNum(p.area) + ' <em>كم²</em>'],
+    ['السكان', fmtNum(p.pop) + ' <em>نسمة</em>'],
+    ['الكثافة', fmtNum(Math.round(p.pop / p.area)) + ' <em>ن/كم²</em>']
+  ].forEach(([label, val]) => {
+    const d = document.createElement('div');
+    d.className = 'stat';
+    d.innerHTML = '<span>' + label + '</span><b>' + val + '</b>';
+    grid.appendChild(d);
+  });
+
+  const admin = $('p-admin');
+  admin.innerHTML = '';
+  [
+    ['الاسم العربي', p.ar],
+    ['الاسم الإنجليزي', p.en],
+    ['المركز الإداري', p.cap],
+    ['الإحداثيات', p.c[1].toFixed(3) + '°N, ' + p.c[0].toFixed(3) + '°E']
+  ].forEach(([k, v]) => {
+    const el = document.createElement('p');
+    el.textContent = k + ': ' + v;
+    admin.appendChild(el);
+  });
+
+  $('panel').classList.add('show');
+
+  // Fly to province
+  map.flyTo({
+    center: p.c, zoom: 7.8, pitch: 55, bearing: 0, duration: 1400
   });
 }
 
-function deselectProvince(){
-  if(selectedIdx===null)return;
-  try{map.setFeatureState({source:'provinces',id:selectedIdx},{selected:false})}catch(e){}
-  selectedIdx=null;syncActiveItem(-1);
-}
-
-function selectProvince(idx){
-  const p=PROVINCES.find(x=>x.idx===idx);
-  if(!p)return;
-  if(selectedIdx!==null){try{map.setFeatureState({source:'provinces',id:selectedIdx},{selected:false})}catch(e){}}
-  selectedIdx=idx;
-  if(p.geometry){try{map.setFeatureState({source:'provinces',id:idx},{selected:true})}catch(e){}}
-  syncActiveItem(idx);clearBranch(true);
-
-  const pn=$('provinceName');if(pn)pn.textContent=p.name;
-  const pe=$('provinceEn');if(pe)pe.textContent=p.nameEn?p.nameEn.toUpperCase():'';
-  const pi=$('provinceInfo');if(pi)pi.textContent=p.note||'محافظة من محافظات العراق.';
-
-  // القصة
-  const storyBox=$('storyBox');
-  if(storyBox){
-    const story=PROVINCE_STORIES[p.name];
-    if(story){storyBox.innerHTML='<b>📖 قصة '+p.name+'</b><br>'+story;storyBox.style.display='block'}
-    else{storyBox.style.display='none'}
-  }
-
-  const grid=$('statGrid');
-  if(grid){
-    grid.innerHTML='';
-    const stats=[
-      ['المركز',p.cap||'—',''],
-      ['المساحة',p.area?fmtNum(p.area):'—','كم²'],
-      ['السكان',p.pop?fmtNum(p.pop):'—','نسمة'],
-      ['الكثافة',(p.area&&p.pop)?fmtNum(Math.round(p.pop/p.area)):'—','ن/كم²']
-    ];
-    stats.forEach(([label,val,unit])=>{
-      const d=document.createElement('div');d.className='stat';
-      d.innerHTML='<span>'+label+'</span><b>'+val+(unit?' <em>'+unit+'</em>':'')+'</b>';
-      grid.appendChild(d);
-    });
-  }
-
-  const box=$('branches');
-  if(box){
-    box.innerHTML='';
-    BRANCHES.forEach(b=>{
-      const btn=document.createElement('button');
-      btn.textContent=b.icon+' '+b.label;
-      btn.dataset.key=b.key;
-      btn.addEventListener('click',()=>runBranch(b,btn));
-      box.appendChild(btn);
-    });
-  }
-
-  const admin=$('adminInfo');
-  if(admin){
-    admin.innerHTML='';
-    [
-      ['الاسم العربي',p.name],
-      ['الاسم الإنجليزي',p.nameEn||'—'],
-      ['المركز الإداري',p.cap||'—'],
-      ['معرّف OSM',p.osmId!=null?p.osmId:'غير متوفر'],
-      ['المصدر',p.geometry?'OpenStreetMap':'بيانات محلية']
-    ].forEach(([k,v])=>{
-      const el=document.createElement('p');
-      el.textContent=k+': '+v;
-      admin.appendChild(el);
-    });
-  }
-
-  const panel=$('panel');
-  if(panel)panel.style.display='block';
-
-  if(p.bbox){map.fitBounds([[p.bbox[0],p.bbox[1]],[p.bbox[2],p.bbox[3]]],{padding:{top:90,bottom:90,left:60,right:360},pitch:58,bearing:-6,duration:1400,maxZoom:9.5})}
-  else{map.flyTo({center:p.center,zoom:8,pitch:60,duration:1200})}
+function deselectProvince() {
+  if (state.selectedIdx === null) return;
+  try { state.map.setFeatureState({ source: 'provinces', id: state.selectedIdx }, { selected: false }); } catch (e) {}
+  state.selectedIdx = null;
+  document.querySelectorAll('.prov-item').forEach(el => el.classList.remove('active'));
+  $('panel').classList.remove('show');
 }
 
 /* ============================================================
-   8. الفروع الذهنية
+   9. 3D BUILDINGS (progressive, from Overpass)
    ============================================================ */
-const BRANCHES=[
-  {key:'cities',label:'المدن',icon:'🏙',q:'node["place"~"city|town"]'},
-  {key:'districts',label:'الأقضية',icon:'🗂',q:'relation["boundary"="administrative"]["admin_level"~"6|7"]'},
-  {key:'roads',label:'الطرق',icon:'🛣',q:'way["highway"~"motorway|trunk|primary"]'},
-  {key:'water',label:'المياه',icon:'💧',q:'way["waterway"~"river|canal"]'},
-  {key:'tourism',label:'المعالم',icon:'🏛',q:'node["tourism"~"attraction|museum|monument"]'},
-  {key:'airports',label:'المطارات',icon:'✈',q:'node["aeroway"="aerodrome"]'}
-];
-
-function clearBranch(silent){
-  ['branch-fill','branch-line','branch-point'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-  try{if(map.getSource('branch'))map.removeSource('branch')}catch(e){}
-  document.querySelectorAll('#branches button').forEach(b=>b.classList.remove('active'));
-  if(!silent)toast('✨ تم مسح الفروع');
+function ensureBuilding3DLayer() {
+  const map = state.map;
+  if (!map || map.getLayer('building-3d')) return;
+  // The actual source will be added on first load
 }
 
-async function runBranch(branch,btn){
-  if(selectedIdx===null)return;
-  const p=PROVINCES.find(x=>x.idx===selectedIdx);
-  if(!p)return;
-  if(p.osmId===null||p.osmId===undefined){toast('⚠️ لا تتوفر بيانات OSM');return}
-  if(btn.classList.contains('active')){clearBranch();return}
-  clearBranch(true);
-  btn.classList.add('active');
-  toast('⏳ جاري جلب '+branch.label+'...',8000);
-  const areaId=3600000000+Number(p.osmId);
-  const query='[out:json][timeout:45];\n'+'area('+areaId+')->.a;\n'+branch.q+'(area.a);\n'+'out geom 900;';
-  const data=await fetchOverpassDynamic(query,30000);
-  if(!data||!data.elements||!data.elements.length){btn.classList.remove('active');toast('❌ لم يتم العثور على بيانات');return}
-  try{
-    await ensureOSMToGeoJSON();
-    let gj=window.osmtogeojson(data,{flatProperties:true});
-    if(gj&&typeof gj.then==='function')gj=await gj;
-    const feats=(gj.features||[]).filter(f=>f.geometry);
-    if(!feats.length)throw new Error('empty');
-    map.addSource('branch',{type:'geojson',data:{type:'FeatureCollection',features:feats}});
-    const beforeId=map.getLayer('province-3d')?'province-3d':undefined;
-    map.addLayer({id:'branch-fill',type:'fill',source:'branch',paint:{'fill-color':['case',['==',['geometry-type'],'Polygon'],'#FF006E','#00F5FF'],'fill-opacity':0.22,'fill-outline-color':'#FFE600'}},beforeId);
-    map.addLayer({id:'branch-line',type:'line',source:'branch',paint:{'line-color':['case',['==',['geometry-type'],'LineString'],'#00F5FF','#FFE600'],'line-width':2.5,'line-opacity':0.95,'line-blur':0.5}},beforeId);
-    map.addLayer({id:'branch-point',type:'circle',source:'branch',paint:{'circle-radius':5.5,'circle-color':['case',['==',['geometry-type'],'Point'],'#FFE600','#FF006E'],'circle-stroke-width':1.8,'circle-stroke-color':'#ffffff','circle-opacity':0.98}},beforeId);
-    toast('✨ '+branch.label+': '+feats.length+' عنصر');
-  }catch(err){btn.classList.remove('active');toast('❌ تعذر عرض البيانات')}
-}
+async function loadBuildingsForViewport(silent) {
+  const map = state.map;
+  if (!map || !state.ready) return;
 
-/* ============================================================
-   9. المباني
-   ============================================================ */
-async function loadBuildingsForViewport(silent){
-  if(!map||!mapLoaded)return false;
-  if(map.getZoom()<15){if(!silent)toast('⚠️ قرّب الخريطة أكثر (zoom ≥ 15)');return false}
-  const b=map.getBounds();
-  const bbox=`${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
-  const query=`[out:json][timeout:20];(way["building"](${bbox});relation["building"](${bbox}););out geom 800;`;
-  if(!silent)toast('🏗️ جاري تحميل المباني...',8000);
-  const data=await fetchOverpassDynamic(query,15000);
-  if(!data||!data.elements?.length){if(!silent)toast('❌ لا توجد مباني');return false}
-  try{
-    await ensureOSMToGeoJSON();
-    let gj=window.osmtogeojson(data,{flatProperties:false});
-    if(gj&&typeof gj.then==='function')gj=await gj;
-    const feats=(gj.features||[]).filter(f=>f.geometry);
-    if(!feats.length)return false;
-    feats.forEach(f=>{
-      const tags=(f.properties&&f.properties.tags)||f.properties||{};
-      const rawH=parseFloat(tags.height);
-      const rawL=parseFloat(tags['building:levels']);
-      let h=6;
-      if(Number.isFinite(rawH))h=rawH;
-      else if(Number.isFinite(rawL))h=rawL*3.2;
-      f.properties=f.properties||{};
-      f.properties._h=Math.max(3,h);
-      const type=String(tags.building||'yes').toLowerCase();
-      if(/residential|house|apartments|dormitory/.test(type))f.properties._color='#B8B8C8';
-      else if(/commercial|retail|office|industrial/.test(type))f.properties._color='#FFE0A0';
-      else if(/school|university|hospital|government|mosque|church/.test(type))f.properties._color='#A0D8FF';
-      else f.properties._color='#C0C0C0';
-    });
-    if(map.getSource('real-buildings')){
-      map.getSource('real-buildings').setData({type:'FeatureCollection',features:feats});
-    }else{
-      map.addSource('real-buildings',{type:'geojson',data:{type:'FeatureCollection',features:feats}});
-      const beforeId=getBeforeSymbolId();
-      addLayerSafe({
-        id:'real-buildings-3d',type:'fill-extrusion',source:'real-buildings',
-        paint:{'fill-extrusion-color':['get','_color'],'fill-extrusion-height':['get','_h'],'fill-extrusion-base':0,'fill-extrusion-opacity':0.92,'fill-extrusion-vertical-gradient':true}
-      },beforeId);
+  const z = map.getZoom();
+  if (z < CONFIG.minZoomBuilding) {
+    if (!silent && z < CONFIG.minZoomBuilding) {
+      toast('⚠️ قرّب الخريطة أكثر (zoom ≥ ' + CONFIG.minZoomBuilding + ')');
     }
-    if(!silent)toast(`🏗️ تم تحميل ${feats.length} مبنى`);
-    return true;
-  }catch(e){console.warn(e);return false}
-}
-
-function clearBuildings(){
-  try{if(map.getLayer('real-buildings-3d'))map.removeLayer('real-buildings-3d')}catch(e){}
-  try{if(map.getSource('real-buildings'))map.removeSource('real-buildings')}catch(e){}
-}
-
-/* ============================================================
-   10. الطرق
-   ============================================================ */
-const ROAD_TYPE_COLOR=['match',['get','highway'],'motorway','#FF006E','motorway_link','#FF006E','trunk','#FB5607','trunk_link','#FB5607','primary','#FFE600','primary_link','#FFE600','secondary','#00F5FF','secondary_link','#00F5FF','tertiary','#06FFA5','tertiary_link','#06FFA5','residential','#B537F2','living_street','#9B5DE5','service','#8A8AA0','footway','#8B8B8B','path','#8B8B8B','pedestrian','#FF9F1C','steps','#8B8B8B','cycleway','#8B8B8B','#B537F2'];
-const ROAD_TYPE_WIDTH=['match',['get','highway'],'motorway',5,'motorway_link',3,'trunk',4,'trunk_link',3,'primary',3.5,'primary_link',2.5,'secondary',3,'secondary_link',2,'tertiary',2.5,'tertiary_link',1.8,'residential',2,'living_street',1.8,'service',1.5,'footway',1.2,'path',1.2,'pedestrian',1.5,'steps',1,'cycleway',1.2,1.5];
-
-async function loadRoadsForViewport(silent){
-  if(!map||!mapLoaded)return false;
-  if(map.getZoom()<13){if(!silent)toast('⚠️ قرّب الخريطة أكثر (zoom ≥ 13)');return false}
-  const b=map.getBounds();
-  const bbox=`${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
-  const query=`[out:json][timeout:25];(way["highway"~"motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|tertiary|tertiary_link|residential|living_street|service|footway|pedestrian|path|steps|cycleway"](${bbox});way["bridge"="yes"](${bbox});way["tunnel"="yes"](${bbox}););out geom 2000;`;
-  if(!silent)toast('🛣️ جاري تحميل الطرق...',8000);
-  const data=await fetchOverpassDynamic(query,15000);
-  if(!data||!data.elements?.length){if(!silent)toast('❌ لا توجد طرق');return false}
-  try{
-    await ensureOSMToGeoJSON();
-    let gj=window.osmtogeojson(data,{flatProperties:true});
-    if(gj&&typeof gj.then==='function')gj=await gj;
-    const feats=(gj.features||[]).filter(f=>f.geometry&&(f.geometry.type==='LineString'||f.geometry.type==='MultiLineString'));
-    if(!feats.length)return false;
-    feats.forEach(f=>{
-      const tags=f.properties||{};
-      if(tags.maxspeed){const m=String(tags.maxspeed).match(/(\d+)/);f.properties._speed=m?parseInt(m[1],10):null}
-      else{f.properties._speed=null}
-    });
-    if(map.getSource('real-roads')){
-      map.getSource('real-roads').setData({type:'FeatureCollection',features:feats});
-    }else{
-      map.addSource('real-roads',{type:'geojson',data:{type:'FeatureCollection',features:feats}});
-      const beforeId=getBeforeSymbolId();
-      addLayerSafe({id:'real-tunnels',type:'line',source:'real-roads',filter:['==',['get','tunnel'],'yes'],paint:{'line-color':'#00F5FF','line-width':2,'line-dasharray':[2,2],'line-opacity':0.85}},beforeId);
-      addLayerSafe({id:'real-roads-line',type:'line',source:'real-roads',paint:{'line-color':ROAD_TYPE_COLOR,'line-width':ROAD_TYPE_WIDTH,'line-opacity':0.95}},beforeId);
-      addLayerSafe({id:'real-bridges',type:'line',source:'real-roads',filter:['==',['get','bridge'],'yes'],paint:{'line-color':'#FFE600','line-width':3.5,'line-opacity':0.95}},beforeId);
-    }
-    if(!silent)toast(`🛣️ تم تحميل ${feats.length} مقطع طرق`);
-    return true;
-  }catch(e){console.warn(e);return false}
-}
-
-function clearRoads(){
-  ['real-roads-line','real-bridges','real-tunnels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-  try{if(map.getSource('real-roads'))map.removeSource('real-roads')}catch(e){}
-}
-
-/* ============================================================
-   11. المطارات
-   ============================================================ */
-async function loadAirports(){
-  if(!map||!mapLoaded||airportsLoaded)return false;
-  toast('✈️ جاري تحميل المطارات...',8000);
-  const query=`[out:json][timeout:30];area["ISO3166-1"="IQ"]["admin_level"="2"]->.a;(node["aeroway"="aerodrome"](area.a);way["aeroway"="aerodrome"](area.a);way["aeroway"="runway"](area.a);way["aeroway"="taxiway"](area.a);node["aeroway"="helipad"](area.a););out geom;`;
-  const data=await fetchOverpassDynamic(query,30000);
-  if(!data||!data.elements?.length){toast('❌ لا تتوفر بيانات مطارات');return false}
-  try{
-    await ensureOSMToGeoJSON();
-    let gj=window.osmtogeojson(data,{flatProperties:true});
-    if(gj&&typeof gj.then==='function')gj=await gj;
-    const feats=(gj.features||[]).filter(f=>f.geometry);
-    if(!feats.length)return false;
-    ['airports-runways','airports-taxiways','airports-points','airports-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('airports'))map.removeSource('airports')}catch(e){}
-    map.addSource('airports',{type:'geojson',data:{type:'FeatureCollection',features:feats}});
-    const beforeId=getBeforeSymbolId();
-    addLayerSafe({id:'airports-taxiways',type:'line',source:'airports',filter:['==',['get','aeroway'],'taxiway'],paint:{'line-color':'#FFE600','line-width':2,'line-opacity':0.8}},beforeId);
-    addLayerSafe({id:'airports-runways',type:'line',source:'airports',filter:['==',['get','aeroway'],'runway'],paint:{'line-color':'#FFFFFF','line-width':5,'line-opacity':0.95}},beforeId);
-    addLayerSafe({id:'airports-points',type:'circle',source:'airports',filter:['any',['==',['get','aeroway'],'aerodrome'],['==',['get','aeroway'],'helipad']],paint:{'circle-radius':8,'circle-color':'#FF006E','circle-stroke-width':2,'circle-stroke-color':'#FFFFFF','circle-opacity':0.95}},beforeId);
-    map.addLayer({id:'airports-labels',type:'symbol',source:'airports',minzoom:6,filter:['==',['get','aeroway'],'aerodrome'],layout:{'text-field':['coalesce',['get','name:ar'],['get','name'],['get','name:en'],'مطار'],'text-font':['Noto Sans Regular'],'text-size':11,'text-offset':[0,-1.8],'text-anchor':'bottom'},paint:{'text-color':'#FFFFFF','text-halo-color':'#0a0320','text-halo-width':1.5}});
-    airportsLoaded=true;
-    toast(`✈️ تم تحميل ${feats.length} مطاراً/مدرجاً`);
-    return true;
-  }catch(e){console.warn(e);toast('❌ تعذر تحميل المطارات');return false}
-}
-
-/* ============================================================
-   12. الطائرات الحية
-   ============================================================ */
-function ensureAircraftIcon(){
-  if(!map||map.hasImage('aircraft-icon'))return;
-  try{
-    const c=document.createElement('canvas');c.width=32;c.height=32;
-    const ctx=c.getContext('2d');
-    ctx.fillStyle='#00F5FF';ctx.strokeStyle='#FFFFFF';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(16,2);ctx.lineTo(20,12);ctx.lineTo(30,14);ctx.lineTo(30,18);ctx.lineTo(20,16);ctx.lineTo(20,26);ctx.lineTo(24,30);ctx.lineTo(12,30);ctx.lineTo(12,26);ctx.lineTo(12,16);ctx.lineTo(2,18);ctx.lineTo(2,14);ctx.lineTo(12,12);ctx.closePath();
-    ctx.fill();ctx.stroke();
-    const imgData=ctx.getImageData(0,0,32,32);
-    map.addImage('aircraft-icon',imgData);
-  }catch(e){console.warn('icon error',e)}
-}
-
-async function fetchLiveAircraft(){
-  if(!map||!mapLoaded||aircraftAborted)return;
-  const b=map.getBounds();
-  const url=`https://opensky-network.org/api/states/all?lamin=${b.getSouth()}&lomin=${b.getWest()}&lamax=${b.getNorth()}&lomax=${b.getEast()}`;
-  try{
-    const res=await fetch(url);
-    if(!res.ok)return;
-    const json=await res.json();
-    if(aircraftAborted)return;
-    const features=(json.states||[]).map(s=>({
-      type:'Feature',
-      geometry:{type:'Point',coordinates:[s[5],s[6]]},
-      properties:{
-        callsign:(s[1]||'').trim()||'—',
-        altitude:(s[7]!==null&&s[7]!==undefined)?s[7]:((s[13]!==null&&s[13]!==undefined)?s[13]:0),
-        velocity:(s[9]!==null&&s[9]!==undefined)?s[9]:0,
-        heading:(s[10]!==null&&s[10]!==undefined)?s[10]:0,
-        country:s[2]||''
-      }
-    })).filter(f=>f.geometry.coordinates[0]!=null&&f.geometry.coordinates[1]!=null);
-    if(map.getSource('live-aircraft')){
-      map.getSource('live-aircraft').setData({type:'FeatureCollection',features});
-    }else{
-      map.addSource('live-aircraft',{type:'geojson',data:{type:'FeatureCollection',features}});
-      const beforeId=getBeforeSymbolId();
-      map.addLayer({id:'live-aircraft-icons',type:'symbol',source:'live-aircraft',layout:{'icon-image':'aircraft-icon','icon-size':0.85,'icon-rotate':['coalesce',['get','heading'],0],'icon-allow-overlap':true,'icon-ignore-placement':true}},beforeId);
-      map.addLayer({id:'live-aircraft-labels',type:'symbol',source:'live-aircraft',layout:{'text-field':['get','callsign'],'text-font':['Noto Sans Regular'],'text-size':9,'text-offset':[0,1.4],'text-anchor':'top'},paint:{'text-color':'#FFFFFF','text-halo-color':'#0a0320','text-halo-width':1}});
-    }
-  }catch(e){}
-}
-
-function startAircraftTracking(){
-  if(aircraftTimer)return;
-  aircraftAborted=false;
-  ensureAircraftIcon();
-  fetchLiveAircraft();
-  aircraftTimer=setInterval(fetchLiveAircraft,15000);
-}
-
-function stopAircraftTracking(){
-  aircraftAborted=true;
-  clearInterval(aircraftTimer);
-  aircraftTimer=null;
-  try{if(map.getLayer('live-aircraft-icons'))map.removeLayer('live-aircraft-icons')}catch(e){}
-  try{if(map.getLayer('live-aircraft-labels'))map.removeLayer('live-aircraft-labels')}catch(e){}
-  try{if(map.getSource('live-aircraft'))map.removeSource('live-aircraft')}catch(e){}
-}
-
-/* ============================================================
-   13. السرعات
-   ============================================================ */
-function toggleTrafficMode(){
-  if(!map.getLayer('real-roads-line')){toast('⚠️ حمّل الطرق أولاً (🛣️)');return}
-  trafficMode=!trafficMode;
-  if(trafficMode){
-    map.setPaintProperty('real-roads-line','line-color',['case',['>=',['coalesce',['get','_speed'],0],80],'#06FFA5',['>=',['coalesce',['get','_speed'],0],50],'#FFE600',['>',['coalesce',['get','_speed'],0],0],'#FF006E','#5A5A78']);
-    map.setPaintProperty('real-roads-line','line-width',4);
-    toast('🚦 السرعات القصوى: أخضر ≥80، أصفر 50-79، أحمر <50');
-  }else{
-    map.setPaintProperty('real-roads-line','line-color',ROAD_TYPE_COLOR);
-    map.setPaintProperty('real-roads-line','line-width',ROAD_TYPE_WIDTH);
-    toast('🛣️ ألوان الطرق حسب النوع');
-  }
-  $('toggleTraffic').classList.toggle('on',trafficMode);
-}
-
-/* ============================================================
-   14. المسار
-   ============================================================ */
-function clearRoute(){
-  routeSources.forEach(id=>{
-    try{if(map.getLayer(id+'-line'))map.removeLayer(id+'-line')}catch(e){}
-    try{if(map.getSource(id))map.removeSource(id)}catch(e){}
-  });
-  routeSources=[];
-  if(destinationMarker){try{destinationMarker.remove()}catch(e){}destinationMarker=null}
-}
-
-async function routeToDestination(destLng,destLat){
-  if(!userLocation){toast('⚠️ اضغط 📍 موقعي أولاً');return}
-  const[uLng,uLat]=userLocation;
-  const url=`https://router.project-osrm.org/route/v1/driving/${uLng},${uLat};${destLng},${destLat}?overview=full&geometries=geojson&alternatives=true&steps=false`;
-  toast('🧭 جاري حساب المسار...',6000);
-  try{
-    const res=await fetch(url);
-    if(!res.ok)throw new Error('OSRM '+res.status);
-    const json=await res.json();
-    if(!json.routes||!json.routes.length){toast('❌ تعذر حساب المسار');return}
-    clearRoute();
-    const main=json.routes[0];
-    map.addSource('route-main',{type:'geojson',data:{type:'Feature',geometry:main.geometry,properties:{}}});
-    map.addLayer({id:'route-main-line',type:'line',source:'route-main',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#00F5FF','line-width':7,'line-opacity':0.95,'line-blur':1}});
-    routeSources.push('route-main');
-    json.routes.slice(1).forEach((r,i)=>{
-      const id=`route-alt-${i}`;
-      map.addSource(id,{type:'geojson',data:{type:'Feature',geometry:r.geometry,properties:{}}});
-      map.addLayer({id:`${id}-line`,type:'line',source:id,layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#FFE600','line-width':4,'line-opacity':0.65,'line-dasharray':[2,2]}});
-      routeSources.push(id);
-    });
-    const el=document.createElement('div');
-    el.style.cssText='width:20px;height:20px;background:#FF006E;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 24px #FF006E;';
-    destinationMarker=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([destLng,destLat]).addTo(map);
-    const km=(main.distance/1000).toFixed(1);
-    const min=Math.round(main.duration/60);
-    const altCount=json.routes.length-1;
-    toast(`✨ الأسرع: ${km} كم — ${min} دقيقة${altCount>0?' ('+altCount+' بديل)':''}`,5000);
-    const coords=main.geometry.coordinates;
-    let minX=180,minY=90,maxX=-180,maxY=-90;
-    for(const[x,y]of coords){
-      if(x<minX)minX=x;if(x>maxX)maxX=x;
-      if(y<minY)minY=y;if(y>maxY)maxY=y;
-    }
-    map.fitBounds([[minX,minY],[maxX,maxY]],{padding:{top:100,bottom:100,left:80,right:80},pitch:55,duration:1400});
-  }catch(e){console.warn(e);toast('❌ تعذر الاتصال بخدمة OSRM')}
-}
-
-/* ============================================================
-   15. تحديث الارتفاع حسب الزوم
-   ============================================================ */
-function updateProvinceExtrusionForZoom(){
-  if(!map||!map.getLayer('province-3d'))return;
-  if(popRiseActive)return;
-  const z=map.getZoom();
-  const bucket=Math.floor(z);
-  if(bucket===lastBldZoomBucket)return;
-  lastBldZoomBucket=bucket;
-  let h=1700,op=0.78;
-  if(buildingsActive&&z>11){
-    const t=Math.min(1,(z-11)/4);
-    h=1700*Math.max(0.01,1-t*0.99);
-    op=0.78*Math.max(0.15,1-t*0.85);
-  }
-  try{
-    map.setPaintProperty('province-3d','fill-extrusion-height',[
-      'case',
-      ['boolean',['feature-state','selected'],false],h*2,
-      ['boolean',['feature-state','hover'],false],h*1.5,
-      h
-    ]);
-    map.setPaintProperty('province-3d','fill-extrusion-opacity',op);
-  }catch(e){}
-}
-
-/* ============================================================
-   16. الأفكار الإبداعية — الطبقات
-   ============================================================ */
-
-/* 1. UNESCO */
-function toggleUnesco(){
-  if(unescoActive){
-    ['unesco-points','unesco-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('unesco'))map.removeSource('unesco')}catch(e){}
-    unescoActive=false;$('toggleUnesco').classList.remove('on');
-    toast('🏛️ تم إخفاء التراث');return;
-  }
-  const fc={type:'FeatureCollection',features:UNESCO_SITES.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,year:s.year,type:s.type}}))};
-  map.addSource('unesco',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'unesco-points',type:'circle',source:'unesco',paint:{'circle-radius':10,'circle-color':'#FFE600','circle-stroke-width':3,'circle-stroke-color':'#FFFFFF','circle-opacity':0.95}},beforeId);
-  map.addLayer({id:'unesco-labels',type:'symbol',source:'unesco',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':11,'text-offset':[0,-2],'text-anchor':'bottom'},paint:{'text-color':'#FFE600','text-halo-color':'#0a0320','text-halo-width':2}});
-  unescoActive=true;$('toggleUnesco').classList.add('on');
-  toast('🏛️ 9 مواقع تراث عالمي — UNESCO');
-}
-
-/* 2. النفط */
-function toggleOil(){
-  if(oilActive){
-    ['oil-points','oil-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('oil'))map.removeSource('oil')}catch(e){}
-    oilActive=false;$('toggleOil').classList.remove('on');
-    toast('🛢️ تم إخفاء النفط');return;
-  }
-  const fc={type:'FeatureCollection',features:OIL_FIELDS.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,reserve:s.reserve,unit:s.unit,prov:s.prov,note:s.note}}))};
-  map.addSource('oil',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'oil-points',type:'circle',source:'oil',paint:{'circle-radius':12,'circle-color':'#FF006E','circle-stroke-width':3,'circle-stroke-color':'#000','circle-opacity':0.9}},beforeId);
-  map.addLayer({id:'oil-labels',type:'symbol',source:'oil',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':12,'text-offset':[0,-2.2],'text-anchor':'bottom'},paint:{'text-color':'#FF006E','text-halo-color':'#000','text-halo-width':2}});
-  oilActive=true;$('toggleOil').classList.add('on');
-  toast('🛢️ 5 حقول نفط/غاز — وزارة النفط');
-}
-
-/* 3. الأهوار */
-function toggleMarshes(){
-  if(marshesActive){
-    ['marsh-points','marsh-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('marshes'))map.removeSource('marshes')}catch(e){}
-    marshesActive=false;$('toggleMarshes').classList.remove('on');
-    toast('🌊 تم إخفاء الأهوار');return;
-  }
-  const fc={type:'FeatureCollection',features:MARSHES.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,area:s.area,note:s.note}}))};
-  map.addSource('marshes',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'marsh-points',type:'circle',source:'marshes',paint:{'circle-radius':14,'circle-color':'#00F5FF','circle-stroke-width':3,'circle-stroke-color':'#06FFA5','circle-opacity':0.85}},beforeId);
-  map.addLayer({id:'marsh-labels',type:'symbol',source:'marshes',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':12,'text-offset':[0,-2.4],'text-anchor':'bottom'},paint:{'text-color':'#06FFA5','text-halo-color':'#003333','text-halo-width':2}});
-  marshesActive=true;$('toggleMarshes').classList.add('on');
-  toast('🌊 3 مناطق أهوار — UNFCCC');
-}
-
-/* 4. السدود */
-function toggleDams(){
-  if(damsActive){
-    ['dam-points','dam-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('dams'))map.removeSource('dams')}catch(e){}
-    damsActive=false;$('toggleDams').classList.remove('on');
-    toast('⚡ تم إخفاء السدود');return;
-  }
-  const fc={type:'FeatureCollection',features:DAMS.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,capacity:s.capacity,unit:s.unit,type:s.type,note:s.note}}))};
-  map.addSource('dams',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'dam-points',type:'circle',source:'dams',paint:{'circle-radius':9,'circle-color':['match',['get','type'],'dam','#8338EC','lake','#3A86FF','#8338EC'],'circle-stroke-width':2.5,'circle-stroke-color':'#FFFFFF','circle-opacity':0.9}},beforeId);
-  map.addLayer({id:'dam-labels',type:'symbol',source:'dams',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':11,'text-offset':[0,-2],'text-anchor':'bottom'},paint:{'text-color':'#FFFFFF','text-halo-color':'#1a0033','text-halo-width':2}});
-  damsActive=true;$('toggleDams').classList.add('on');
-  toast('⚡ 8 سدود/بحيرات — مجلس النواب');
-}
-
-/* 5. الارتفاع السكاني */
-function togglePopRise(){
-  if(!map||!map.getLayer('province-3d')){toast('⚠️ الخريطة غير جاهزة');return}
-  popRiseActive=!popRiseActive;
-  if(popRiseActive){
-    let maxPop=0;
-    PROVINCES.forEach(p=>{if(p.pop&&p.pop>maxPop)maxPop=p.pop});
-    if(maxPop===0)maxPop=Math.max(...PROVINCE_META.map(p=>p.pop));
-    const factor=5000/maxPop;
-    map.setPaintProperty('province-3d','fill-extrusion-height',[
-      'case',
-      ['boolean',['feature-state','selected'],false],['*',['coalesce',['get','pop'],0],factor*1.5],
-      ['boolean',['feature-state','hover'],false],['*',['coalesce',['get','pop'],0],factor*1.2],
-      ['*',['coalesce',['get','pop'],0],factor]
-    ]);
-    map.setPaintProperty('province-3d','fill-extrusion-opacity',0.88);
-    $('togglePopRise').classList.add('on');
-    toast(`📊 ارتفاع المحافظات = السكان (أعلى: ${fmtNum(maxPop)})`);
-  }else{
-    lastBldZoomBucket=-1;
-    updateProvinceExtrusionForZoom();
-    $('togglePopRise').classList.remove('on');
-    toast('📊 تم إيقاف الارتفاع السكاني');
-  }
-}
-
-/* 6. الموارد المعدنية */
-function toggleMinerals(){
-  if(mineralsActive){
-    ['mineral-points','mineral-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('minerals'))map.removeSource('minerals')}catch(e){}
-    mineralsActive=false;$('toggleMinerals').classList.remove('on');
-    toast('🪨 تم إخفاء الموارد المعدنية');return;
-  }
-  const fc={type:'FeatureCollection',features:MINERALS.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,type:s.type,reserve:s.reserve,prov:s.prov,note:s.note}}))};
-  map.addSource('minerals',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'mineral-points',type:'circle',source:'minerals',paint:{'circle-radius':11,'circle-color':['match',['get','type'],'phosphate','#FF9F1C','sulfur','#FFE600','copper','#B537F2','#FF9F1C'],'circle-stroke-width':2.5,'circle-stroke-color':'#000','circle-opacity':0.9}},beforeId);
-  map.addLayer({id:'mineral-labels',type:'symbol',source:'minerals',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':11,'text-offset':[0,-2.2],'text-anchor':'bottom'},paint:{'text-color':'#FF9F1C','text-halo-color':'#000','text-halo-width':2}});
-  mineralsActive=true;$('toggleMinerals').classList.add('on');
-  toast('🪨 3 مواقع معدنية — فوسفات، كبريت، نحاس');
-}
-
-/* 7. الطاقة المتجددة */
-function toggleRenewables(){
-  if(renewablesActive){
-    ['renewable-points','renewable-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('renewables'))map.removeSource('renewables')}catch(e){}
-    renewablesActive=false;$('toggleRenewables').classList.remove('on');
-    toast('☀️ تم إخفاء الطاقة المتجددة');return;
-  }
-  const fc={type:'FeatureCollection',features:RENEWABLES.map(s=>({type:'Feature',geometry:{type:'Point',coordinates:s.c},properties:{name:s.name,type:s.type,capacity:s.capacity,note:s.note}}))};
-  map.addSource('renewables',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'renewable-points',type:'circle',source:'renewables',paint:{'circle-radius':12,'circle-color':['match',['get','type'],'solar','#FFE600','wind','#00F5FF','hybrid','#06FFA5','#FFE600'],'circle-stroke-width':3,'circle-stroke-color':'#fff','circle-opacity':0.9}},beforeId);
-  map.addLayer({id:'renewable-labels',type:'symbol',source:'renewables',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':11,'text-offset':[0,-2.4],'text-anchor':'bottom'},paint:{'text-color':'#06FFA5','text-halo-color':'#003333','text-halo-width':2}});
-  renewablesActive=true;$('toggleRenewables').classList.add('on');
-  toast('☀️ 4 مواقع طاقة متجددة');
-}
-
-/* 8. خطوط الأنابيب */
-function togglePipelines(){
-  if(pipelinesActive){
-    ['pipeline-lines','pipeline-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('pipelines'))map.removeSource('pipelines')}catch(e){}
-    pipelinesActive=false;$('togglePipelines').classList.remove('on');
-    toast('🛢️ تم إخفاء خطوط الأنابيب');return;
-  }
-  const fc={type:'FeatureCollection',features:PIPELINES.map(s=>({type:'Feature',geometry:{type:'LineString',coordinates:s.coords},properties:{name:s.name,length:s.length,capacity:s.capacity,note:s.note}}))};
-  map.addSource('pipelines',{type:'geojson',data:fc});
-  const beforeId=getBeforeSymbolId();
-  map.addLayer({id:'pipeline-lines',type:'line',source:'pipelines',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#FF006E','line-width':3.5,'line-opacity':0.9,'line-dasharray':[2,1]}},beforeId);
-  map.addLayer({id:'pipeline-labels',type:'symbol',source:'pipelines',layout:{'symbol-placement':'line-center','text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':10},paint:{'text-color':'#FF006E','text-halo-color':'#fff','text-halo-width':1.5}});
-  pipelinesActive=true;$('togglePipelines').classList.add('on');
-  toast('🛢️ 3 خطوط أنابيب استراتيجية');
-}
-
-/* 9. محاكاة الفيضان */
-function toggleFloodSim(){
-  floodLevel=(floodLevel+1)%floodLevels.length;
-  const meters=floodLevels[floodLevel];
-  try{if(map.getLayer('flood-zone'))map.removeLayer('flood-zone')}catch(e){}
-  try{if(map.getSource('flood-src'))map.removeSource('flood-src')}catch(e){}
-  if(meters===0){
-    $('toggleFlood').classList.remove('on');
-    toast('🌊 تم إيقاف محاكاة الفيضان');
     return;
   }
-  const floodAreas={
-    type:'FeatureCollection',
-    features:[
-      {type:'Feature',geometry:{type:'Polygon',coordinates:[[[47.0,30.2],[48.2,30.2],[48.5,30.8],[48.0,31.0],[47.2,30.8],[47.0,30.2]]]},properties:{name:'أبو الخصيب / الفاو'}},
-      {type:'Feature',geometry:{type:'Polygon',coordinates:[[[46.0,30.8],[46.8,30.8],[46.9,31.3],[46.3,31.4],[46.0,31.0],[46.0,30.8]]]},properties:{name:'الناصرية / سوق الشيوخ'}},
-      {type:'Feature',geometry:{type:'Polygon',coordinates:[[[46.8,31.3],[47.5,31.3],[47.6,31.9],[47.0,32.0],[46.8,31.5],[46.8,31.3]]]},properties:{name:'العمارة / المجر'}}
-    ]
-  };
-  map.addSource('flood-src',{type:'geojson',data:floodAreas});
-  const beforeId=map.getLayer('province-3d')?'province-3d':undefined;
-  map.addLayer({id:'flood-zone',type:'fill',source:'flood-src',paint:{'fill-color':'#00F5FF','fill-opacity':0.15+(meters*0.04),'fill-outline-color':'#00F5FF'}},beforeId);
-  $('toggleFlood').classList.add('on');
-  toast(`🌊 محاكاة فيضان عند ${meters} متر — انقر مرة أخرى لزيادة المستوى`);
-}
 
-/* ============================================================
-   17. ربط الأزرار
-   ============================================================ */
-$('close').addEventListener('click',()=>{$('panel').style.display='none';deselectProvince()});
-$('zoomProvince').addEventListener('click',()=>{
-  if(selectedIdx===null)return;
-  const p=PROVINCES.find(x=>x.idx===selectedIdx);
-  if(!p)return;
-  if(p.bbox){map.fitBounds([[p.bbox[0],p.bbox[1]],[p.bbox[2],p.bbox[3]]],{padding:80,pitch:70,duration:1300,maxZoom:11})}
-  else{map.flyTo({center:p.center,zoom:10,pitch:70,duration:1200})}
-});
-$('showAll').addEventListener('click',()=>{$('panel').style.display='none';deselectProvince();map.fitBounds(IRAQ_BOUNDS,{padding:40,pitch:45,bearing:0,duration:1500})});
-$('reset').addEventListener('click',()=>{deselectProvince();map.fitBounds(IRAQ_BOUNDS,{padding:40,pitch:52,bearing:-8,duration:1600})});
-$('terrain').addEventListener('click',function(){
-  terrainOn=!terrainOn;
-  this.classList.toggle('on',terrainOn);
-  try{if(map.getSource('iraq-dem')){map.setTerrain(terrainOn?{source:'iraq-dem',exaggeration:1.35}:null)}}catch(e){}
-  toast(terrainOn?'⛰️ التضاريس مفعّلة':'🗺️ عرض مسطح');
-});
-$('labels').addEventListener('click',function(){
-  labelsOn=!labelsOn;
-  this.classList.toggle('on',labelsOn);
-  PROVINCES.forEach(p=>{if(p.labelEl)p.labelEl.style.display=labelsOn?'':'none'});
-});
-$('toggleList').addEventListener('click',function(){
-  $('sideList').classList.toggle('hidden');
-  this.classList.toggle('on',!$('sideList').classList.contains('hidden'));
-});
-$('clearBranch').addEventListener('click',()=>clearBranch());
+  const bounds = map.getBounds();
+  const bboxKey = [
+    bounds.getSouth().toFixed(3), bounds.getWest().toFixed(3),
+    bounds.getNorth().toFixed(3), bounds.getEast().toFixed(3)
+  ].join(',');
+  if (bboxKey === state.lastBuildingBBox) return;
 
-$('loadBuildings').addEventListener('click',async function(){
-  if(buildingsActive){clearBuildings();buildingsActive=false;lastBldZoomBucket=-1;updateProvinceExtrusionForZoom();this.classList.remove('on');toast('🗑️ تم مسح المباني');return}
-  if(map.getZoom()<15){toast('⚠️ قرّب الخريطة أكثر (zoom ≥ 15)');return}
-  buildingsActive=true;lastBldZoomBucket=-1;updateProvinceExtrusionForZoom();this.classList.add('on');
-  const ok=await loadBuildingsForViewport();
-  if(!ok&&!map.getSource('real-buildings')){this.classList.remove('on');buildingsActive=false;lastBldZoomBucket=-1;updateProvinceExtrusionForZoom()}
-});
+  const myReq = ++state.buildingRequestId;
+  const bbox = [
+    bounds.getSouth(), bounds.getWest(),
+    bounds.getNorth(), bounds.getEast()
+  ].join(',');
 
-$('loadRoads').addEventListener('click',async function(){
-  if(roadsActive){clearRoads();roadsActive=false;if(trafficMode){trafficMode=false;$('toggleTraffic').classList.remove('on')}this.classList.remove('on');toast('🗑️ تم مسح الطرق');return}
-  if(map.getZoom()<13){toast('⚠️ قرّب الخريطة أكثر (zoom ≥ 13)');return}
-  roadsActive=true;this.classList.add('on');
-  const ok=await loadRoadsForViewport();
-  if(!ok&&!map.getSource('real-roads')){this.classList.remove('on');roadsActive=false}
-});
-
-$('loadAirportsBtn').addEventListener('click',async function(){
-  if(airportsLoaded){
-    ['airports-runways','airports-taxiways','airports-points','airports-labels'].forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
-    try{if(map.getSource('airports'))map.removeSource('airports')}catch(e){}
-    airportsLoaded=false;this.classList.remove('on');toast('🗑️ تم مسح المطارات');return;
-  }
-  this.classList.add('on');
-  const ok=await loadAirports();
-  if(!ok)this.classList.remove('on');
-});
-
-$('toggleAircraft').addEventListener('click',function(){
-  if(aircraftTimer){stopAircraftTracking();this.classList.remove('on');toast('⏹️ إيقاف تتبع الطائرات')}
-  else{this.classList.add('on');startAircraftTracking();toast('✈️ تتبع الطائرات الحية')}
-});
-
-$('toggleTraffic').addEventListener('click',()=>toggleTrafficMode());
-
-$('pickDest').addEventListener('click',function(){
-  if(!userLocation){toast('⚠️ اضغط 📍 موقعي أولاً');return}
-  destPicking=true;map.getCanvas().style.cursor='crosshair';
-  toast('🎯 انقر على الخريطة لاختيار الوجهة');
-  this.classList.add('on');
-});
-
-$('clearRoute').addEventListener('click',()=>{clearRoute();toast('🗑️ تم مسح المسار')});
-
-$('myLocation').addEventListener('click',function(){
-  if(!navigator.geolocation){toast('⚠️ متصفحك لا يدعم تحديد الموقع');return}
-  this.classList.add('on');toast('📡 جاري تحديد موقعك...',3000);
-  navigator.geolocation.getCurrentPosition(
-    (position)=>{
-      const lng=position.coords.longitude;
-      const lat=position.coords.latitude;
-      const accuracy=position.coords.accuracy;
-      userLocation=[lng,lat];
-      map.flyTo({center:[lng,lat],zoom:15,pitch:60,bearing:0,duration:1800});
-      if(userMarker)userMarker.remove();
-      if(map.getLayer('user-accuracy'))map.removeLayer('user-accuracy');
-      if(map.getSource('user-accuracy'))map.removeSource('user-accuracy');
-      const el=document.createElement('div');
-      el.className='user-marker';
-      el.innerHTML='<div class="user-pulse"></div><div class="user-dot"></div>';
-      userMarker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([lng,lat]).addTo(map);
-      const points=64;const coords=[];
-      const distanceX=accuracy/(111320*Math.cos(lat*Math.PI/180));
-      const distanceY=accuracy/110574;
-      for(let i=0;i<points;i++){
-        const theta=(i/points)*(2*Math.PI);
-        coords.push([lng+distanceX*Math.cos(theta),lat+distanceY*Math.sin(theta)]);
-      }
-      coords.push(coords[0]);
-      map.addSource('user-accuracy',{type:'geojson',data:{type:'Feature',geometry:{type:'Polygon',coordinates:[coords]}}});
-      map.addLayer({id:'user-accuracy',type:'fill',source:'user-accuracy',paint:{'fill-color':'#00f5ff','fill-opacity':0.15,'fill-outline-color':'#00f5ff'}});
-      toast('✨ تم تحديد موقعك بنجاح');
-      setTimeout(()=>$('myLocation').classList.remove('on'),3000);
-    },
-    (error)=>{
-      $('myLocation').classList.remove('on');
-      if(error.code===1)toast('❌ تم رفض إذن الوصول للموقع');
-      else if(error.code===2)toast('❌ الموقع غير متاح');
-      else if(error.code===3)toast('❌ استغرق وقتاً طويلاً');
-      else toast('❌ تعذر تحديد الموقع');
-    },
-    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
-  );
-});
-
-$('toggleUnesco').addEventListener('click',toggleUnesco);
-$('toggleOil').addEventListener('click',toggleOil);
-$('toggleMarshes').addEventListener('click',toggleMarshes);
-$('toggleDams').addEventListener('click',toggleDams);
-$('togglePopRise').addEventListener('click',togglePopRise);
-$('toggleMinerals').addEventListener('click',toggleMinerals);
-$('toggleRenewables').addEventListener('click',toggleRenewables);
-$('togglePipelines').addEventListener('click',togglePipelines);
-$('toggleFlood').addEventListener('click',toggleFloodSim);
-
-/* ============================================================
-   18. تهيئة الخريطة
-   ============================================================ */
-function setupMapBase(){
-  try{
-    map.addSource('iraq-dem',{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],tileSize:256,encoding:'terrarium',maxzoom:14});
-    map.setTerrain({source:'iraq-dem',exaggeration:1.35});
-  }catch(err){}
-  try{if(map.setLight){map.setLight({anchor:'viewport',color:'#ffffff',intensity:0.95,position:[1.5,220,50]})}}catch(err){}
-  try{map.addLayer({id:'iraq-hillshade',type:'hillshade',source:'iraq-dem',paint:{'hillshade-exaggeration':0.8,'hillshade-shadow-color':'#1a0033','hillshade-highlight-color':'#ff2ec4','hillshade-accent-color':'#00f5ff'}})}catch(err){}
-  try{map.setFog({range:[-0.6,2.2],color:'#0a0425','horizon-blend':0.25,'high-color':'#1a0045','space-color':'#02010a','star-intensity':0.65})}catch(err){}
-  try{map.addLayer({id:'sky',type:'sky',paint:{'sky-type':'atmosphere','sky-atmosphere-sun':[0,45],'sky-atmosphere-sun-intensity':10}})}catch(err){}
-}
-
-async function loadOSMInBackground(){
-  if(osmLoaded)return;
-  try{
-    const osm=await withTimeout(loadProvincesFromOSM(),28000);
-    if(!osm)throw new Error('no data');
-    await ensureOSMToGeoJSON();
-    let geojson=window.osmtogeojson(osm,{flatProperties:false});
-    if(geojson&&typeof geojson.then==='function')geojson=await geojson;
-    if(!geojson||!geojson.features||!geojson.features.length)throw new Error('empty');
-    const newList=buildProvinces(geojson);
-    if(!newList.length||!newList.some(x=>x.geometry))throw new Error('no geometry');
-    clearMapData();
-    PROVINCES=newList;
-    addProvinceLayers();
-    lastBldZoomBucket=-1;
-    updateProvinceExtrusionForZoom();
-    osmLoaded=true;
-    setStatus('تم تحميل <b>'+PROVINCES.length+'</b> محافظة');
-    toast('✨ تم تحديث الحدود من OpenStreetMap');
-  }catch(err){
-    if(!osmLoaded)setStatus('وضع محلي — '+PROVINCES.length+' محافظة');
-  }
-}
-
-let mapReady=false;
-let mapHandlersRegistered2=false;
-
-function onMapReady(){
-  if(mapReady)return;
-  mapReady=true;
-  try{progress(30,'جاري إعداد التضاريس...')}catch(e){}
-  try{setupMapBase()}catch(e){console.warn('setupMapBase:',e)}
-  try{progress(45,'جاري تلوين الخريطة...')}catch(e){}
-  try{applyFullVividTheme()}catch(e){console.warn('theme:',e)}
-  try{progress(60,'جاري رسم المحافظات...')}catch(e){}
-  try{PROVINCES=buildProvinces(null);addProvinceLayers()}catch(e){console.warn('provinces:',e)}
-
-  if(!mapHandlersRegistered2){
-    try{
-      map.on('click',(e)=>{
-        if(!destPicking)return;
-        destPicking=false;
-        map.getCanvas().style.cursor='';
-        $('pickDest').classList.remove('on');
-        routeToDestination(e.lngLat.lng,e.lngLat.lat);
-      });
-      map.on('moveend',()=>{
-        clearTimeout(map._bldTimer);
-        if(buildingsActive)map._bldTimer=setTimeout(()=>loadBuildingsForViewport(true),1400);
-        clearTimeout(map._rdTimer);
-        if(roadsActive)map._rdTimer=setTimeout(()=>loadRoadsForViewport(true),1700);
-      });
-      map.on('zoom',updateProvinceExtrusionForZoom);
-      mapHandlersRegistered2=true;
-    }catch(e){console.warn('handlers:',e)}
-  }
-  try{progress(100,'جاهز!')}catch(e){}
-  try{setStatus('وضع محلي — جاري تحديث الحدود...')}catch(e){}
-  hideLoading();
-  setTimeout(()=>{try{loadOSMInBackground()}catch(e){}},300);
-  setTimeout(()=>{try{map.easeTo({center:[43.8,33.2],zoom:5.2,pitch:52,bearing:-8,duration:1400})}catch(e){}},200);
-  setTimeout(()=>{try{applyFullVividTheme()}catch(e){}},3000);
-}
-
-async function initMap(){
-  try{
-    maplibregl.setRTLTextPlugin(
-      'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.3.0/mapbox-gl-rtl-text.js',
-      null,
-      true
+  const query = `[out:json][timeout:20];
+    (
+      way["building"](${bbox});
+      relation["building"](${bbox});
     );
-  }catch(e){}
+    out geom ${CONFIG.maxFeaturesBuilding};`;
 
-  let style=null;
-  try{
-    const res=await fetchWithTimeout('https://tiles.openfreemap.org/styles/liberty',12000);
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    style=await res.json();
-    style.glyphs='https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
-    style.layers.forEach(layer=>{
-      if(layer.type==='symbol'){
-        if(!layer.layout)layer.layout={};
-        layer.layout['text-font']=['Noto Sans Regular'];
-        if(layer.layout['text-field']){
-          const fieldStr=JSON.stringify(layer.layout['text-field']);
-          if(fieldStr.includes('"name"')&&!fieldStr.includes('"name:ar"')){
-            layer.layout['text-field']=['coalesce',['get','name:ar'],['get','name']];
-          }
-        }
+  if (!silent) toast('🏢 جاري تحميل المباني...', 8000);
+
+  const data = await fetchOverpass(query, 15000);
+  if (myReq !== state.buildingRequestId) return; // stale
+
+  if (!data || !data.elements || !data.elements.length) {
+    if (!silent) toast('لا توجد مبانٍ في هذه المنطقة');
+    return;
+  }
+
+  try {
+    await ensureOSMToGeoJSON();
+    let gj = window.osmtogeojson(data, { flatProperties: false });
+    if (gj && typeof gj.then === 'function') gj = await gj;
+
+    const features = (gj.features || []).filter(f =>
+      f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
+    );
+
+    if (!features.length) return;
+
+    // Process height + color
+    features.forEach(f => {
+      const tags = (f.properties && f.properties.tags) || f.properties || {};
+      const rawH = parseFloat(tags.height);
+      const rawL = parseFloat(tags['building:levels']);
+      const rawMinH = parseFloat(tags.min_height);
+      const rawMinL = parseFloat(tags['building:min_level']);
+
+      let h = 6;
+      if (Number.isFinite(rawH)) h = rawH;
+      else if (Number.isFinite(rawL)) h = rawL * 3.2;
+      else {
+        const type = String(tags.building || '').toLowerCase();
+        if (/house|hut|shed|garage|garages/.test(type)) h = 3.5;
+        else if (/apartments|residential|dormitory/.test(type)) h = 15;
+        else if (/commercial|retail|office/.test(type)) h = 20;
+        else if (/industrial|warehouse/.test(type)) h = 10;
+        else if (/school|university|hospital|government|civic/.test(type)) h = 12;
+        else if (/mosque|church|temple|cathedral/.test(type)) h = 10;
+        else if (/tower|skyscraper/.test(type)) h = 60;
+        else h = 7;
       }
+      h = Math.max(3, Math.min(200, h));
+      f.properties._h = h;
+
+      let base = 0;
+      if (Number.isFinite(rawMinH)) base = rawMinH;
+      else if (Number.isFinite(rawMinL)) base = rawMinL * 3.2;
+      f.properties._base = Math.max(0, Math.min(h - 0.5, base));
+
+      // Color based on type + height
+      const type = String(tags.building || 'yes').toLowerCase();
+      let color;
+      if (/residential|house|apartments|dormitory/.test(type)) color = '#e8dcc8';
+      else if (/commercial|retail|office|hotel/.test(type)) color = '#dcd0b8';
+      else if (/industrial|warehouse|manufacture/.test(type)) color = '#d0c8b8';
+      else if (/school|university|hospital|government|civic/.test(type)) color = '#e2d8c4';
+      else if (/mosque|church|temple|cathedral|religious/.test(type)) color = '#e5dbc5';
+      else if (/tower|skyscraper/.test(type)) color = '#d5cab4';
+      else color = '#ddd3bf';
+      f.properties._color = color;
     });
-  }catch(err){
-    console.warn('[IRAQ] Liberty failed, fallback:',err);
-    style=createFallbackStyle();
-    try{toast('⚠️ تم استخدام الستايل الاحتياطي',4000)}catch(e){}
-  }
 
-  try{
-    map=new maplibregl.Map({
-      container:'map',style:style,center:[43.8,33.2],zoom:5.2,pitch:52,bearing:-8,
-      maxPitch:85,minZoom:3.5,maxZoom:18,antialias:true,attributionControl:false
-    });
-  }catch(err){
-    const el=$('loadText');
-    if(el){el.innerHTML='⚠️ تعذر تهيئة الخريطة (WebGL غير مدعوم؟)<br><button class="retryBtn" onclick="location.reload()">إعادة المحاولة</button>'}
-    hideLoading();return;
-  }
+    // Merge with existing data if same viewport, else replace
+    const fc = { type: 'FeatureCollection', features };
 
-  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
-  map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-right');
-  map.addControl(new maplibregl.ScaleControl({unit:'metric',maxWidth:120}),'bottom-right');
+    if (map.getSource('buildings')) {
+      map.getSource('buildings').setData(fc);
+    } else {
+      map.addSource('buildings', { type: 'geojson', data: fc });
 
-  map.on('error',e=>{if(e&&e.error&&/tile|404|Failed to fetch/i.test(e.error.message||''))return});
-  map.on('style.load',()=>{try{applyFullVividTheme()}catch(e){};setTimeout(hideLoading,800)});
-  map.on('load',()=>{mapLoaded=true;onMapReady()});
+      // Insert just before the first symbol layer so labels stay on top
+      const layers = map.getStyle().layers;
+      const firstSymbol = layers.find(l => l.type === 'symbol');
+      const beforeId = firstSymbol ? firstSymbol.id : undefined;
 
-  setTimeout(()=>{
-    if(!mapReady){
-      if(map&&map.isStyleLoaded()){try{onMapReady()}catch(e){hideLoading()}}
-      else{hideLoading()}
+      const buildingLayer = {
+        id: 'building-3d',
+        type: 'fill-extrusion',
+        source: 'buildings',
+        minzoom: CONFIG.minZoomBuilding - 0.5,
+        paint: {
+          'fill-extrusion-color': ['get', '_color'],
+          'fill-extrusion-height': ['get', '_h'],
+          'fill-extrusion-base': ['get', '_base'],
+          'fill-extrusion-opacity': 0.95,
+          'fill-extrusion-vertical-gradient': true
+        }
+      };
+
+      if (beforeId) {
+        map.addLayer(buildingLayer, beforeId);
+      } else {
+        map.addLayer(buildingLayer);
+      }
+
+      // Subtle roof highlight line for crisper silhouettes
+      const roofLayer = {
+        id: 'building-roof-edge',
+        type: 'line',
+        source: 'buildings',
+        minzoom: CONFIG.minZoomBuilding,
+        paint: {
+          'line-color': 'rgba(150,135,110,0.35)',
+          'line-width': 0.6,
+          'line-opacity': 0.7
+        }
+      };
+      if (beforeId) map.addLayer(roofLayer, beforeId);
+      else map.addLayer(roofLayer);
     }
-  },15000);
 
-  setTimeout(()=>{
-    if(!mapReady){
-      const el=$('loadText');
-      if(el&&!loadingHidden){el.innerHTML='⚠️ تأخر تحميل الخريطة.<br><button class="retryBtn" onclick="location.reload()">إعادة المحاولة</button>'}
-      hideLoading();
+    state.lastBuildingBBox = bboxKey;
+    state.buildingsVisible = true;
+
+    // Show/hide based on toggle
+    if (!state.buildingsActive) {
+      try { map.setLayoutProperty('building-3d', 'visibility', 'none'); } catch (e) {}
+      try { map.setLayoutProperty('building-roof-edge', 'visibility', 'none'); } catch (e) {}
     }
-  },25000);
+
+    if (!silent) toast('🏢 تم تحميل ' + features.length + ' مبنى');
+  } catch (err) {
+    console.warn('[Buildings] error', err);
+    if (!silent) toast('تعذر تحميل المباني');
+  }
 }
 
-initMap();
-window.addEventListener('load',()=>{if(window.innerWidth<720){setTimeout(()=>{const el=$('sideList');if(el)el.classList.add('hidden')},3500)}});
+function clearBuildings() {
+  const map = state.map;
+  try { if (map.getLayer('building-3d')) map.removeLayer('building-3d'); } catch (e) {}
+  try { if (map.getLayer('building-roof-edge')) map.removeLayer('building-roof-edge'); } catch (e) {}
+  try { if (map.getSource('buildings')) map.removeSource('buildings'); } catch (e) {}
+  state.lastBuildingBBox = null;
+  state.buildingsVisible = false;
+}
+
+/* ============================================================
+   10. ROADS (enhanced from Overpass, with bridges/tunnels)
+   ============================================================ */
+async function loadRoadsForViewport(silent) {
+  const map = state.map;
+  if (!map || !state.ready) return;
+
+  const z = map.getZoom();
+  if (z < CONFIG.minZoomRoad) return;
+
+  const bounds = map.getBounds();
+  const bboxKey = [
+    bounds.getSouth().toFixed(3), bounds.getWest().toFixed(3),
+    bounds.getNorth().toFixed(3), bounds.getEast().toFixed(3)
+  ].join(',');
+  if (bboxKey === state.lastRoadBBox) return;
+
+  const myReq = ++state.roadRequestId;
+  const bbox = [
+    bounds.getSouth(), bounds.getWest(),
+    bounds.getNorth(), bounds.getEast()
+  ].join(',');
+
+  const query = `[out:json][timeout:25];
+    (
+      way["highway"~"motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|tertiary|tertiary_link|residential|living_street|service|unclassified|pedestrian"](${bbox});
+      way["bridge"="yes"](${bbox});
+      way["tunnel"="yes"](${bbox});
+      way["junction"="roundabout"](${bbox});
+      way["highway"="footway"]["footway"="sidewalk"](${bbox});
+    );
+    out geom ${CONFIG.maxFeaturesRoad};`;
+
+  if (!silent) toast('🛣️ جاري تحميل الشوارع...', 8000);
+
+  const data = await fetchOverpass(query, 18000);
+  if (myReq !== state.roadRequestId) return;
+
+  if (!data || !data.elements || !data.elements.length) {
+    if (!silent) toast('لا توجد شوارع هنا');
+    return;
+  }
+
+  try {
+    await ensureOSMToGeoJSON();
+    let gj = window.osmtogeojson(data, { flatProperties: true });
+    if (gj && typeof gj.then === 'function') gj = await gj;
+
+    const features = (gj.features || []).filter(f =>
+      f.geometry && (f.geometry.type === 'LineString' || f.geometry.type === 'MultiLineString')
+    );
+    if (!features.length) return;
+
+    // Classify features
+    features.forEach(f => {
+      const tags = f.properties || {};
+      const hw = tags.highway || '';
+      const isBridge = tags.bridge === 'yes';
+      const isTunnel = tags.tunnel === 'yes';
+      const isRoundabout = tags.junction === 'roundabout';
+      const isSidewalk = hw === 'footway' && tags.footway === 'sidewalk';
+
+      f.properties._class = isSidewalk ? 'sidewalk'
+                        : isBridge ? 'bridge'
+                        : isTunnel ? 'tunnel'
+                        : isRoundabout ? 'roundabout'
+                        : hw;
+    });
+
+    const fc = { type: 'FeatureCollection', features };
+
+    if (map.getSource('roads')) {
+      map.getSource('roads').setData(fc);
+    } else {
+      map.addSource('roads', { type: 'geojson', data: fc });
+
+      const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
+      const beforeId = firstSymbol ? firstSymbol.id : undefined;
+
+      // Sidewalks (thin, light)
+      addLayerSafe({
+        id: 'roads-sidewalks',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['==', ['get', '_class'], 'sidewalk'],
+        paint: {
+          'line-color': '#e8e4dc',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 15, 1.2, 18, 2.5],
+          'line-opacity': 0.9
+        }
+      }, beforeId);
+
+      // Tunnels (dashed)
+      addLayerSafe({
+        id: 'roads-tunnels',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['==', ['get', '_class'], 'tunnel'],
+        paint: {
+          'line-color': '#c8bfa8',
+          'line-width': 2,
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.8
+        }
+      }, beforeId);
+
+      // Regular roads by class
+      addLayerSafe({
+        id: 'roads-minor',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['match', ['get', '_class'],
+          ['service', 'residential', 'living_street', 'unclassified', 'pedestrian'], true, false],
+        paint: {
+          'line-color': '#f5f2ec',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 13, 1, 16, 2.2, 18, 3],
+          'line-opacity': 0.95
+        }
+      }, beforeId);
+
+      addLayerSafe({
+        id: 'roads-mid',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['match', ['get', '_class'], ['tertiary', 'secondary'], true, false],
+        paint: {
+          'line-color': '#f8f6f2',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 13, 1.5, 16, 2.8, 18, 4],
+          'line-opacity': 0.98
+        }
+      }, beforeId);
+
+      addLayerSafe({
+        id: 'roads-major',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad - 1,
+        filter: ['match', ['get', '_class'], ['primary', 'trunk', 'motorway'], true, false],
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 1.8, 14, 3.5, 18, 6],
+          'line-opacity': 1
+        }
+      }, beforeId);
+
+      // Bridges (highlight)
+      addLayerSafe({
+        id: 'roads-bridges',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['==', ['get', '_class'], 'bridge'],
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 3.5,
+          'line-opacity': 1,
+          'line-blur': 0.3
+        }
+      }, beforeId);
+
+      // Roundabouts
+      addLayerSafe({
+        id: 'roads-roundabouts',
+        type: 'line',
+        source: 'roads',
+        minzoom: CONFIG.minZoomRoad,
+        filter: ['==', ['get', '_class'], 'roundabout'],
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 2.5,
+          'line-opacity': 1
+        }
+      }, beforeId);
+    }
+
+    state.lastRoadBBox = bboxKey;
+    if (!silent) toast('🛣️ تم تحميل ' + features.length + ' مقطع طريق');
+  } catch (err) {
+    console.warn('[Roads] error', err);
+    if (!silent) toast('تعذر تحميل الشوارع');
+  }
+}
+
+function addLayerSafe(layer, beforeId) {
+  const map = state.map;
+  try {
+    if (beforeId && map.getLayer(beforeId)) map.addLayer(layer, beforeId);
+    else map.addLayer(layer);
+  } catch (e) {
+    try { map.addLayer(layer); } catch (e2) { console.warn('[Layer]', e2); }
+  }
+}
+
+/* ============================================================
+   11. WATER & PARKS (extra detail from Overpass, only if zoomed)
+   ============================================================ */
+async function loadWaterForViewport(silent) {
+  const map = state.map;
+  if (!map || !state.ready) return;
+  if (map.getZoom() < CONFIG.minZoomWater) return;
+
+  const bounds = map.getBounds();
+  const bbox = [
+    bounds.getSouth(), bounds.getWest(),
+    bounds.getNorth(), bounds.getEast()
+  ].join(',');
+
+  const query = `[out:json][timeout:20];
+    (
+      way["natural"="water"](${bbox});
+      relation["natural"="water"](${bbox});
+      way["waterway"~"river|canal|stream"](${bbox});
+    );
+    out geom 800;`;
+
+  const data = await fetchOverpass(query, 12000);
+  if (!data || !data.elements || !data.elements.length) return;
+
+  try {
+    await ensureOSMToGeoJSON();
+    let gj = window.osmtogeojson(data, { flatProperties: true });
+    if (gj && typeof gj.then === 'function') gj = await gj;
+    const feats = (gj.features || []).filter(f => f.geometry);
+    if (!feats.length) return;
+
+    const fc = { type: 'FeatureCollection', features: feats };
+    if (map.getSource('water-detail')) {
+      map.getSource('water-detail').setData(fc);
+    } else {
+      const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
+      const beforeId = firstSymbol ? firstSymbol.id : undefined;
+
+      map.addSource('water-detail', { type: 'geojson', data: fc });
+      addLayerSafe({
+        id: 'water-detail-fill', type: 'fill', source: 'water-detail',
+        filter: ['==', ['geometry-type'], 'Polygon'],
+        paint: { 'fill-color': T.water, 'fill-opacity': 0.92 }
+      }, beforeId);
+      addLayerSafe({
+        id: 'water-detail-line', type: 'line', source: 'water-detail',
+        paint: { 'line-color': T.waterLine, 'line-width': 1.2, 'line-opacity': 0.8 }
+      }, beforeId);
+    }
+  } catch (e) { console.warn('[Water]', e); }
+}
+
+async function loadParksForViewport(silent) {
+  const map = state.map;
+  if (!map || !state.ready) return;
+  if (map.getZoom() < CONFIG.minZoomWater) return;
+
+  const bounds = map.getBounds();
+  const bbox = [
+    bounds.getSouth(), bounds.getWest(),
+    bounds.getNorth(), bounds.getEast()
+  ].join(',');
+
+  const query = `[out:json][timeout:20];
+    (
+      way["leisure"~"park|garden|playground|pitch"](${bbox});
+      way["landuse"~"grass|forest|meadow|recreation_ground"](${bbox});
+    );
+    out geom 600;`;
+
+  const data = await fetchOverpass(query, 12000);
+  if (!data || !data.elements || !data.elements.length) return;
+
+  try {
+    await ensureOSMToGeoJSON();
+    let gj = window.osmtogeojson(data, { flatProperties: true });
+    if (gj && typeof gj.then === 'function') gj = await gj;
+    const feats = (gj.features || []).filter(f => f.geometry);
+    if (!feats.length) return;
+
+    const fc = { type: 'FeatureCollection', features: feats };
+    if (map.getSource('parks-detail')) {
+      map.getSource('parks-detail').setData(fc);
+    } else {
+      const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
+      const beforeId = firstSymbol ? firstSymbol.id : undefined;
+
+      map.addSource('parks-detail', { type: 'geojson', data: fc });
+      addLayerSafe({
+        id: 'parks-detail-fill', type: 'fill', source: 'parks-detail',
+        paint: {
+          'fill-color': T.park,
+          'fill-opacity': 0.8,
+          'fill-outline-color': T.parkLine
+        }
+      }, beforeId);
+    }
+  } catch (e) { console.warn('[Parks]', e); }
+}
+
+/* ============================================================
+   12. LAYER TOGGLES
+   ============================================================ */
+function toggleLayerGroup(active, layerIds) {
+  const map = state.map;
+  if (!map) return;
+  layerIds.forEach(id => {
+    try {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, 'visibility', active ? 'visible' : 'none');
+      }
+    } catch (e) {}
+  });
+}
+
+function toggleBaseLayerPattern(active, patterns) {
+  const map = state.map;
+  if (!map || !map.getStyle().layers) return;
+  map.getStyle().layers.forEach(layer => {
+    const sl = layer['source-layer'] || '';
+    const id = layer.id;
+    const hit = patterns.some(p => p.test(id) || p.test(sl));
+    if (hit) {
+      try { map.setLayoutProperty(id, 'visibility', active ? 'visible' : 'none'); } catch (e) {}
+    }
+  });
+}
+
+function applyToggles() {
+  // Buildings
+  toggleLayerGroup(state.buildingsActive, ['building-3d', 'building-roof-edge']);
+
+  // Roads
+  toggleLayerGroup(state.roadsActive, [
+    'roads-sidewalks', 'roads-tunnels', 'roads-minor',
+    'roads-mid', 'roads-major', 'roads-bridges', 'roads-roundabouts'
+  ]);
+  if (!state.roadsActive) {
+    toggleBaseLayerPattern(false, [/transportation/, /road/]);
+  } else {
+    toggleBaseLayerPattern(true, [/transportation/, /road/]);
+  }
+
+  // Water
+  toggleLayerGroup(state.waterActive, ['water-detail-fill', 'water-detail-line']);
+  toggleBaseLayerPattern(state.waterActive, [/water/, /waterway/]);
+
+  // Parks
+  toggleLayerGroup(state.parksActive, ['parks-detail-fill']);
+  toggleBaseLayerPattern(state.parksActive, [/park/, /grass/, /forest/, /landcover/]);
+
+  // Labels
+  const map = state.map;
+  if (map && map.getStyle().layers) {
+    map.getStyle().layers.forEach(layer => {
+      if (layer.type === 'symbol') {
+        try { map.setLayoutProperty(layer.id, 'visibility', state.labelsActive ? 'visible' : 'none'); } catch (e) {}
+      }
+    });
+  }
+  // Also toggle our custom province markers
+  PROVINCES_DATA.forEach(p => {
+    if (p.marker) {
+      const el = p.marker.getElement();
+      if (el) el.style.display = state.labelsActive ? '' : 'none';
+    }
+  });
+}
+
+/* ============================================================
+   13. GPS & LOCATION
+   ============================================================ */
+function locateUser() {
+  if (!navigator.geolocation) {
+    toast('⚠️ المتصفح لا يدعم تحديد الموقع');
+    return;
+  }
+  toast('📡 جاري تحديد موقعك...', 4000);
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lng = pos.coords.longitude;
+      const lat = pos.coords.latitude;
+      const accuracy = pos.coords.accuracy || 30;
+      state.userLocation = [lng, lat];
+
+      const map = state.map;
+      map.flyTo({ center: [lng, lat], zoom: 16, pitch: 55, bearing: 0, duration: 1600 });
+
+      // User marker
+      if (state.userMarker) state.userMarker.remove();
+      const el = document.createElement('div');
+      el.className = 'user-marker';
+      el.innerHTML = '<div class="user-pulse"></div><div class="user-dot"></div>';
+      state.userMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([lng, lat]).addTo(map);
+
+      // Accuracy circle
+      try {
+        if (map.getLayer('user-accuracy')) map.removeLayer('user-accuracy');
+        if (map.getSource('user-accuracy')) map.removeSource('user-accuracy');
+        const pts = 64, coords = [];
+        const dx = accuracy / (111320 * Math.cos(lat * Math.PI / 180));
+        const dy = accuracy / 110574;
+        for (let i = 0; i < pts; i++) {
+          const theta = (i / pts) * 2 * Math.PI;
+          coords.push([lng + dx * Math.cos(theta), lat + dy * Math.sin(theta)]);
+        }
+        coords.push(coords[0]);
+        map.addSource('user-accuracy', {
+          type: 'geojson',
+          data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
+        });
+        map.addLayer({
+          id: 'user-accuracy', type: 'fill', source: 'user-accuracy',
+          paint: { 'fill-color': T.accent, 'fill-opacity': 0.12,
+                   'fill-outline-color': T.accent }
+        });
+      } catch (e) {}
+
+      toast('✨ تم تحديد موقعك بدقة ±' + Math.round(accuracy) + ' م');
+      $('btn-locate').classList.add('on');
+    },
+    err => {
+      let msg = '❌ تعذر تحديد الموقع';
+      if (err.code === 1) msg = '❌ تم رفض إذن الوصول للموقع';
+      else if (err.code === 2) msg = '❌ الموقع غير متاح';
+      else if (err.code === 3) msg = '❌ استغرق وقتاً طويلاً';
+      toast(msg, 4000);
+    },
+    { enableHighAccuracy: true, timeout: CONFIG.gpsTimeout, maximumAge: 0 }
+  );
+}
+
+/* ============================================================
+   14. ROUTING
+   ============================================================ */
+async function setDestination(lng, lat) {
+  state.destination = [lng, lat];
+
+  if (state.destMarker) state.destMarker.remove();
+  const el = document.createElement('div');
+  el.className = 'dest-marker';
+  state.destMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+    .setLngLat([lng, lat]).addTo(state.map);
+
+  if (!state.userLocation) {
+    toast('⚠️ اضغط 📍 موقعي أولاً لحساب المسار');
+    return;
+  }
+  await requestRoute(state.userLocation, [lng, lat]);
+}
+
+async function requestRoute(from, to) {
+  if (!from || !to) return;
+  toast('🧭 جاري حساب المسار...', 6000);
+
+  const url = CONFIG.osrm + from[0] + ',' + from[1] + ';' + to[0] + ',' + to[1] +
+    '?overview=full&geometries=geojson&alternatives=false&steps=false';
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('OSRM ' + res.status);
+    const json = await res.json();
+    if (!json.routes || !json.routes.length) { toast('❌ تعذر حساب المسار'); return; }
+
+    const route = json.routes[0];
+
+    // Clear old
+    state.routeSources.forEach(id => {
+      try { if (state.map.getLayer(id + '-line')) state.map.removeLayer(id + '-line'); } catch (e) {}
+      try { if (state.map.getSource(id)) state.map.removeSource(id); } catch (e) {}
+    });
+    state.routeSources = [];
+
+    const map = state.map;
+    map.addSource('route-main', {
+      type: 'geojson',
+      data: { type: 'Feature', geometry: route.geometry, properties: {} }
+    });
+
+    // Route casing + line
+    const firstSymbol = map.getStyle().layers.find(l => l.type === 'symbol');
+    const beforeId = firstSymbol ? firstSymbol.id : undefined;
+
+    addLayerSafe({
+      id: 'route-main-casing', type: 'line', source: 'route-main',
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: {
+        'line-color': '#ffffff',
+        'line-width': 9,
+        'line-opacity': 0.9
+      }
+    }, beforeId);
+
+    addLayerSafe({
+      id: 'route-main-line', type: 'line', source: 'route-main',
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: {
+        'line-color': T.accent,
+        'line-width': 6,
+        'line-opacity': 0.95
+      }
+    }, beforeId);
+
+    state.routeSources.push('route-main');
+
+    const km = (route.distance / 1000).toFixed(1);
+    const min = Math.round(route.duration / 60);
+    toast('✨ المسار: ' + km + ' كم — ' + min + ' دقيقة', 5000);
+
+    // Fit to route
+    const coords = route.geometry.coordinates;
+    let minX = 180, minY = 90, maxX = -180, maxY = -90;
+    coords.forEach(([x, y]) => {
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+    });
+    map.fitBounds([[minX, minY], [maxX, maxY]], {
+      padding: { top: 100, bottom: 120, left: 80, right: 80 },
+      pitch: 50, duration: 1400
+    });
+  } catch (err) {
+    console.warn('[Route]', err);
+    toast('❌ تعذر الاتصال بخدمة المسارات');
+  }
+}
+
+function clearRoute() {
+  const map = state.map;
+  state.routeSources.forEach(id => {
+    try { if (map.getLayer(id + '-line')) map.removeLayer(id + '-line'); } catch (e) {}
+    try { if (map.getLayer(id + '-casing')) map.removeLayer(id + '-casing'); } catch (e) {}
+    try { if (map.getSource(id)) map.removeSource(id); } catch (e) {}
+  });
+  state.routeSources = [];
+  if (state.destMarker) { state.destMarker.remove(); state.destMarker = null; }
+  state.destination = null;
+  toast('🗑️ تم مسح المسار');
+}
+
+/* ============================================================
+   15. SEARCH (Nominatim)
+   ============================================================ */
+const searchInput = $('search');
+const searchResults = $('search-results');
+
+const runSearch = debounce(async () => {
+  const q = searchInput.value.trim();
+  if (q.length < 2) { searchResults.classList.remove('show'); return; }
+
+  searchResults.innerHTML = '<div class="search-result loading">جاري البحث...</div>';
+  searchResults.classList.add('show');
+
+  const params = new URLSearchParams({
+    q: q,
+    format: 'json',
+    limit: '6',
+    viewbox: '38.7,29.0,48.7,37.4',
+    bounded: '1',
+    'accept-language': 'ar,en',
+    addressdetails: '1'
+  });
+
+  try {
+    const res = await fetch(CONFIG.nominatim + '?' + params.toString(), {
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await res.json();
+
+    if (!data || !data.length) {
+      searchResults.innerHTML = '<div class="search-result">لا توجد نتائج</div>';
+      return;
+    }
+
+    searchResults.innerHTML = '';
+    data.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'search-result';
+      const type = (item.type || item.class || '').replace(/_/g, ' ');
+      row.innerHTML = '<div class="name">' + (item.display_name.split(',')[0]) + '</div>' +
+                      '<div class="type">' + type + ' — ' +
+                      (item.display_name.split(',').slice(1, 3).join(',').trim() || '') + '</div>';
+      row.addEventListener('click', () => {
+        const lng = parseFloat(item.lon);
+        const lat = parseFloat(item.lat);
+        state.map.flyTo({ center: [lng, lat], zoom: 15, pitch: 55, duration: 1600 });
+        searchResults.classList.remove('show');
+        searchInput.value = item.display_name.split(',')[0];
+
+        // Small marker
+        if (window.__searchMarker) window.__searchMarker.remove();
+        const el = document.createElement('div');
+        el.className = 'dest-marker';
+        window.__searchMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([lng, lat]).addTo(state.map);
+      });
+      searchResults.appendChild(row);
+    });
+  } catch (err) {
+    searchResults.innerHTML = '<div class="search-result">تعذر البحث — تحقق من الاتصال</div>';
+  }
+}, 500);
+
+if (searchInput) {
+  searchInput.addEventListener('input', runSearch);
+  searchInput.addEventListener('focus', () => {
+    if (searchInput.value.trim().length >= 2 && searchResults.children.length) {
+      searchResults.classList.add('show');
+    }
+  });
+  document.addEventListener('click', e => {
+    if (!searchResults.contains(e.target) && e.target !== searchInput) {
+      searchResults.classList.remove('show');
+    }
+  });
+}
+
+/* ============================================================
+   16. UI HANDLERS
+   ============================================================ */
+function bindUI() {
+  $('close-panel').addEventListener('click', () => {
+    $('panel').classList.remove('show');
+    deselectProvince();
+  });
+
+  $('zoom-prov').addEventListener('click', () => {
+    if (state.selectedIdx === null) return;
+    const p = PROVINCES_DATA[state.selectedIdx];
+    state.map.flyTo({ center: p.c, zoom: 9.5, pitch: 60, duration: 1400 });
+  });
+
+  $('show-all').addEventListener('click', () => {
+    $('panel').classList.remove('show');
+    deselectProvince();
+    state.map.fitBounds(CONFIG.iraqBounds, {
+      padding: 60, pitch: 50, bearing: 0, duration: 1600
+    });
+  });
+
+  $('btn-reset').addEventListener('click', () => {
+    state.map.fitBounds(CONFIG.iraqBounds, {
+      padding: 60, pitch: 48, bearing: 0, duration: 1600
+    });
+  });
+
+  $('btn-terrain').addEventListener('click', function () {
+    state.terrainActive = !state.terrainActive;
+    this.classList.toggle('on', state.terrainActive);
+    try {
+      if (state.terrainActive) {
+        state.map.setTerrain({ source: 'iraq-dem', exaggeration: CONFIG.isMobile ? 1.0 : 1.25 });
+      } else {
+        state.map.setTerrain(null);
+      }
+    } catch (e) {}
+    toast(state.terrainActive ? '⛰️ التضاريس مفعلة' : '🗺️ عرض مسطح');
+  });
+
+  $('btn-locate').addEventListener('click', locateUser);
+
+  $('btn-buildings').addEventListener('click', function () {
+    state.buildingsActive = !state.buildingsActive;
+    this.classList.toggle('on', state.buildingsActive);
+    toggleLayerGroup(state.buildingsActive, ['building-3d', 'building-roof-edge']);
+    if (state.buildingsActive) {
+      loadBuildingsForViewport(false);
+      toast('🏢 المباني مفعلة');
+    } else {
+      toast('🏢 المباني مخفية');
+    }
+  });
+
+  $('btn-roads').addEventListener('click', function () {
+    state.roadsActive = !state.roadsActive;
+    this.classList.toggle('on', state.roadsActive);
+    toggleLayerGroup(state.roadsActive, [
+      'roads-sidewalks', 'roads-tunnels', 'roads-minor',
+      'roads-mid', 'roads-major', 'roads-bridges', 'roads-roundabouts'
+    ]);
+    toggleBaseLayerPattern(state.roadsActive, [/transportation/, /road/]);
+    if (state.roadsActive) loadRoadsForViewport(false);
+    toast(state.roadsActive ? '🛣️ الشوارع مفعلة' : '🛣️ الشوارع مخفية');
+  });
+
+  $('btn-water').addEventListener('click', function () {
+    state.waterActive = !state.waterActive;
+    this.classList.toggle('on', state.waterActive);
+    toggleLayerGroup(state.waterActive, ['water-detail-fill', 'water-detail-line']);
+    toggleBaseLayerPattern(state.waterActive, [/water/, /waterway/]);
+    toast(state.waterActive ? '💧 المياه مفعلة' : '💧 المياه مخفية');
+  });
+
+  $('btn-parks').addEventListener('click', function () {
+    state.parksActive = !state.parksActive;
+    this.classList.toggle('on', state.parksActive);
+    toggleLayerGroup(state.parksActive, ['parks-detail-fill']);
+    toggleBaseLayerPattern(state.parksActive, [/park/, /grass/, /forest/]);
+    toast(state.parksActive ? '🌳 الحدائق مفعلة' : '🌳 الحدائق مخفية');
+  });
+
+  $('btn-labels').addEventListener('click', function () {
+    state.labelsActive = !state.labelsActive;
+    this.classList.toggle('on', state.labelsActive);
+    applyToggles();
+    toast(state.labelsActive ? '🏷️ الأسماء مفعلة' : '🏷️ الأسماء مخفية');
+  });
+
+  $('btn-sidebar').addEventListener('click', function () {
+    const sidebar = $('sidebar');
+    sidebar.classList.toggle('hidden');
+    this.classList.toggle('on', !sidebar.classList.contains('hidden'));
+  });
+
+  $('btn-route').addEventListener('click', function () {
+    if (!state.userLocation) {
+      toast('⚠️ اضغط 📍 موقعي أولاً');
+      return;
+    }
+    state.routeMode = !state.routeMode;
+    this.classList.toggle('on', state.routeMode);
+    if (state.routeMode) {
+      state.map.getCanvas().style.cursor = 'crosshair';
+      toast('🎯 انقر على الخريطة لاختيار الوجهة');
+    } else {
+      state.map.getCanvas().style.cursor = '';
+    }
+  });
+}
+
+/* ============================================================
+   17. TAXI APP INTEGRATION API
+   ============================================================ */
+window.TaxiMap = {
+  // Core
+  getMap: () => state.map,
+  isReady: () => state.ready,
+  getCenter: () => state.map ? state.map.getCenter() : null,
+  getBounds: () => state.map ? state.map.getBounds() : null,
+  getZoom: () => state.map ? state.map.getZoom() : null,
+
+  // Location
+  getUserLocation: () => state.userLocation,
+  locateUser: () => locateUser(),
+  setUserLocation: (lng, lat) => {
+    state.userLocation = [lng, lat];
+    if (state.userMarker) state.userMarker.remove();
+    const el = document.createElement('div');
+    el.className = 'user-marker';
+    el.innerHTML = '<div class="user-pulse"></div><div class="user-dot"></div>';
+    state.userMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([lng, lat]).addTo(state.map);
+  },
+
+  // Navigation
+  flyTo: (lng, lat, opts = {}) => {
+    if (state.map) state.map.flyTo({ center: [lng, lat], ...opts });
+  },
+  fitBounds: (bounds, opts = {}) => {
+    if (state.map) state.map.fitBounds(bounds, opts);
+  },
+
+  // Route
+  setDestination: (lng, lat) => setDestination(lng, lat),
+  requestRoute: (from, to) => requestRoute(from, to),
+  clearRoute: () => clearRoute(),
+  getRoute: () => state.routeSources,
+
+  // Interaction
+  onMapClick: (callback) => {
+    if (state.map) state.map.on('click', e => callback(e.lngLat));
+  },
+  onMoveEnd: (callback) => {
+    if (state.map) state.map.on('moveend', () => callback({
+      center: state.map.getCenter(),
+      bounds: state.map.getBounds(),
+      zoom: state.map.getZoom()
+    }));
+  },
+
+  // Layers
+  toggleBuildings: (on) => {
+    state.buildingsActive = !!on;
+    $('btn-buildings').classList.toggle('on', state.buildingsActive);
+    toggleLayerGroup(state.buildingsActive, ['building-3d', 'building-roof-edge']);
+  },
+  toggleLabels: (on) => {
+    state.labelsActive = !!on;
+    $('btn-labels').classList.toggle('on', state.labelsActive);
+    applyToggles();
+  },
+
+  // Search
+  searchPlace: async (query) => {
+    const params = new URLSearchParams({
+      q: query, format: 'json', limit: '5',
+      viewbox: '38.7,29.0,48.7,37.4', bounded: '1',
+      'accept-language': 'ar,en'
+    });
+    const res = await fetch(CONFIG.nominatim + '?' + params);
+    return await res.json();
+  },
+
+  // Utilities
+  toast: (msg, ms) => toast(msg, ms),
+  version: '1.0.0'
+};
+
+/* ============================================================
+   18. BOOTSTRAP
+   ============================================================ */
+async function boot() {
+  try {
+    bindUI();
+    await initMap();
+    // Auto-load initial view content after a short delay
+    setTimeout(() => {
+      if (state.ready) {
+        loadBuildingsForViewport(true);
+      }
+    }, 1500);
+    // On mobile, auto-hide sidebar after 4s
+    if (CONFIG.isMobile) {
+      setTimeout(() => {
+        $('sidebar').classList.add('hidden');
+        $('btn-sidebar').classList.remove('on');
+      }, 4000);
+    }
+  } catch (err) {
+    console.error('[Boot] fatal', err);
+    progress(100, '⚠️ تعذر بدء التطبيق');
+    setTimeout(hideLoading, 800);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+
+// Expose some internals for debugging
+window.__state = state;
+window.__config = CONFIG;
+window.__theme = T;
 </script>
 </body>
 </html>
