@@ -3,6 +3,7 @@
 /* ============================================================
    ROYAL MAP - MAP ENGINE v2.2.0
    محرك الخريطة: التهيئة، المحافظات، المباني، الطرق، POI، المسارات، الأدوات
+   الهوية البصرية: ذهبي ملكي / زمردي عميق / أزرق ملكي
    ============================================================ */
 
 const BACKEND = {
@@ -32,35 +33,38 @@ const CONFIG = {
   isMobile: /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)
 };
 
+/* ============================================================
+   THÈME ROYAL — الذهبي / الزمردي / الأزرق الملكي
+   ============================================================ */
 const T = {
-  land: '#f2efe9', water: '#a9d4e0', waterDeep: '#94c2d0', waterLine: '#88b8c8',
-  park: '#c8d8b8', parkDeep: '#b8cfa8', parkLine: '#a8bf98',
-  building: { light:'#ebe2ce', mid:'#d8cdb8', dark:'#c0b5a0', shadow:'#a89a80' },
-  road: { motorway:'#ffffff', trunk:'#fdfaf5', primary:'#f8f6f2',
-    secondary:'#f2eee6', tertiary:'#ede8de', residential:'#f5f2ec',
-    service:'#f8f6f0', casing:'#e0d8c8' },
-  boundary: '#c8bca0', text: '#3a3a3a', textSecondary: '#5a5a5a',
-  textHalo: '#f2efe9', labelHalo: '#ffffff',
-  accent: '#5a8fa8', accentDark: '#3d6f88',
-  poi: { hospital:'#b85a5a', restaurant:'#c89858', school:'#5a8fa8',
-    fuel:'#7a9a5a', pharmacy:'#9a5ab8', cafe:'#a87a5a', bank:'#5a7a9a', police:'#3d6f88' }
+  land: '#EDE7D5', water: '#244B78', waterDeep: '#1A3A5E', waterLine: '#142F4A',
+  park: '#176B52', parkDeep: '#0E4A38', parkLine: '#0A3A2A',
+  building: { light:'#DED1AA', mid:'#CBB97E', dark:'#B7A468', shadow:'#9A8758' },
+  road: { motorway:'#C5A45D', trunk:'#C5A45D', primary:'#BCA05F',
+    secondary:'#D4C895', tertiary:'#E0D6B0', residential:'#EAE3CC',
+    service:'#F0EBDC', casing:'#B5A470' },
+  boundary: '#A89568', text: '#1E2E3A', textSecondary: '#415464',
+  textHalo: '#F2EDDF', labelHalo: '#F2EDDF',
+  accent: '#176B52', accentDark: '#244B78',
+  poi: { hospital:'#244B78', restaurant:'#C5A45D', school:'#176B52',
+    fuel:'#B89A4A', pharmacy:'#2A7A5E', cafe:'#B89858', bank:'#345680', police:'#1A3E5E' }
 };
 
 const PALETTES = {
-  'sand-city': { name:'Sand City', nameAr:'رملي هادئ', land:'#f2efe9',
-    water:'#a9d4e0', waterDeep:'#94c2d0', waterLine:'#88b8c8',
-    park:'#c8d8b8', parkDeep:'#b8cfa8', parkLine:'#a8bf98',
-    building:{ light:'#ebe2ce', mid:'#d8cdb8', dark:'#c0b5a0', shadow:'#a89a80' },
-    road:{ motorway:'#ffffff', trunk:'#fdfaf5', primary:'#f8f6f2',
-      secondary:'#f2eee6', tertiary:'#ede8de', residential:'#f5f2ec',
-      service:'#f8f6f0', casing:'#e0d8c8' },
-    boundary:'#c8bca0', text:'#3a3a3a', textSecondary:'#5a5a5a',
-    textHalo:'#f2efe9', text3:'#9a9a9a',
-    accent:'#5a8fa8', accentDark:'#3d6f88', accentLight:'#e8f0f4',
-    bg:'#f2efe9', panel:'rgba(255,253,250,.97)', panelBorder:'#e0d8c8',
+  'sand-city': { name:'Royal Emerald', nameAr:'زمردي ملكي', land:'#EDE7D5',
+    water:'#244B78', waterDeep:'#1A3A5E', waterLine:'#142F4A',
+    park:'#176B52', parkDeep:'#0E4A38', parkLine:'#0A3A2A',
+    building:{ light:'#DED1AA', mid:'#CBB97E', dark:'#B7A468', shadow:'#9A8758' },
+    road:{ motorway:'#C5A45D', trunk:'#C5A45D', primary:'#BCA05F',
+      secondary:'#D4C895', tertiary:'#E0D6B0', residential:'#EAE3CC',
+      service:'#F0EBDC', casing:'#B5A470' },
+    boundary:'#A89568', text:'#1E2E3A', textSecondary:'#415464',
+    textHalo:'#F2EDDF', text3:'#7A8A98',
+    accent:'#176B52', accentDark:'#244B78', accentLight:'#DCEBE4',
+    bg:'#EDE7D5', panel:'rgba(250, 247, 240, .97)', panelBorder:'#D8CCAC',
     basemap:'light',
-    poi:{ hospital:'#b85a5a', restaurant:'#c89858', school:'#5a8fa8',
-      fuel:'#7a9a5a', pharmacy:'#9a5ab8', cafe:'#a87a5a', bank:'#5a7a9a', police:'#3d6f88' } },
+    poi:{ hospital:'#244B78', restaurant:'#C5A45D', school:'#176B52',
+      fuel:'#B89A4A', pharmacy:'#2A7A5E', cafe:'#B89858', bank:'#345680', police:'#1A3E5E' } },
   'soft-stone': { name:'Soft Stone', nameAr:'حجري طبيعي', land:'#e8e5df',
     water:'#a8c0cc', waterDeep:'#94b0bc', waterLine:'#88a8b4',
     park:'#bcc9b0', parkDeep:'#aab89c', parkLine:'#9aa88a',
@@ -371,13 +375,13 @@ function applyCalmTheme(map) {
       if (sl === 'waterway' && type === 'line') { set(id, 'line-color', T.water); set(id, 'line-opacity', 0.9); return; }
       if ((sl === 'park' || sl === 'landcover' || sl === 'landuse') && type === 'fill') {
         const isGreen = sl === 'park' || /grass|forest|wood|park|meadow|scrub/i.test(id + ' ' + sl);
-        if (isGreen) { set(id, 'fill-color', T.park); set(id, 'fill-opacity', 0.85); }
+        if (isGreen) { set(id, 'fill-color', T.park); set(id, 'fill-opacity', 0.88); }
         else if (/sand|beach|desert/i.test(id + ' ' + sl)) { set(id, 'fill-color', T.building.light); set(id, 'fill-opacity', 0.7); }
         return;
       }
       if (sl === 'building' && type === 'fill') {
         set(id, 'fill-color', T.building.light); set(id, 'fill-opacity', 0.55);
-        set(id, 'fill-outline-color', 'rgba(200,185,160,0.5)'); return;
+        set(id, 'fill-outline-color', 'rgba(168,149,104,0.55)'); return;
       }
       if (sl === 'transportation' && type === 'line') {
         if (/casing|outline|bridge.casing|tunnel.casing/i.test(id)) {
@@ -413,7 +417,7 @@ function applyCalmTheme(map) {
   });
   try {
     const isDark = state.currentPalette === 'soft-night';
-    map.setLight({ anchor: 'viewport', color: isDark ? '#a0b0c0' : '#fffaf0', intensity: 0.4, position: [1.5, 90, 55] });
+    map.setLight({ anchor: 'viewport', color: isDark ? '#a0b0c0' : '#F2EDDF', intensity: 0.4, position: [1.5, 90, 55] });
   } catch (e) {}
   try {
     map.setFog({ range: [1.5, 8], color: T.textHalo, 'horizon-blend': 0.08,
@@ -729,7 +733,7 @@ async function loadBikePaths(silent) {
         id: 'bike-paths-layer', type: 'line', source: 'bike-paths',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: {
-          'line-color': '#5a9a7a',
+          'line-color': '#176B52',
           'line-width': ['interpolate', ['linear'], ['zoom'], 12, 1.5, 16, 3.5, 18, 5],
           'line-dasharray': [2, 1],
           'line-opacity': 0.9
@@ -797,10 +801,10 @@ async function loadTraffic(silent) {
       filter: ['match', ['get', '_class'], ['motorway','trunk','primary','secondary'], true, false],
       paint: {
         'line-color': ['match', ['get', '_traffic'],
-          'high', '#c85a5a', 'medium', '#c89858', 'low', '#7a9a5a', '#888888'
+          'high', '#244B78', 'medium', '#C5A45D', 'low', '#176B52', '#A89568'
         ],
         'line-width': ['interpolate', ['linear'], ['zoom'], 10, 1.5, 14, 3, 18, 6],
-        'line-opacity': 0.7
+        'line-opacity': 0.72
       }
     }, firstSymbol ? firstSymbol.id : undefined);
   }
@@ -852,9 +856,9 @@ async function loadTransit(silent) {
   const features = data.elements.filter(e => e.lat && e.lon).map(e => {
     const tags = e.tags || {};
     let kind = 'bus';
-    let color = '#5a8fa8';
-    if (tags.railway === 'station' || tags.public_transport === 'station') { kind = 'train'; color = '#8a5ab8'; }
-    if (tags.amenity === 'bus_station') { kind = 'bus_station'; color = '#c89858'; }
+    let color = '#176B52';
+    if (tags.railway === 'station' || tags.public_transport === 'station') { kind = 'train'; color = '#244B78'; }
+    if (tags.amenity === 'bus_station') { kind = 'bus_station'; color = '#C5A45D'; }
     return {
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [e.lon, e.lat] },
@@ -876,7 +880,7 @@ async function loadTransit(silent) {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 5, 15, 9, 18, 12],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 2.5,
-        'circle-stroke-color': '#ffffff',
+        'circle-stroke-color': '#F2EDDF',
         'circle-opacity': 0.92
       }
     }, firstSymbol ? firstSymbol.id : undefined);
@@ -886,8 +890,8 @@ async function loadTransit(silent) {
       new maplibregl.Popup({ offset: 12 })
         .setLngLat(e.lngLat)
         .setHTML('<div style="direction:rtl;text-align:right;font-family:inherit">' +
-          '<b>' + (p.kind === 'train' ? '🚆 ' : '🚌 ') + p.name + '</b>' +
-          '<div style="font-size:11px;color:#6a6a6a;margin-top:4px">' +
+          '<b style="color:#1E2E3A">' + (p.kind === 'train' ? '🚆 ' : '🚌 ') + p.name + '</b>' +
+          '<div style="font-size:11px;color:#415464;margin-top:4px">' +
           (p.kind === 'train' ? 'محطة قطار' : p.kind === 'bus_station' ? 'محطة حافلات' : 'موقف حافلة') +
           '</div></div>')
         .addTo(map);
@@ -954,8 +958,8 @@ function loadFires() {
       id: 'fires-glow', type: 'circle', source: 'fires',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 12, 10, 22, 14, 35],
-        'circle-color': '#ff5a2a',
-        'circle-opacity': 0.25,
+        'circle-color': '#C5A45D',
+        'circle-opacity': 0.22,
         'circle-blur': 1
       }
     }, firstSymbol ? firstSymbol.id : undefined);
@@ -963,9 +967,9 @@ function loadFires() {
       id: 'fires-layer', type: 'circle', source: 'fires',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 10, 7, 14, 10],
-        'circle-color': '#d84020',
+        'circle-color': '#8A6B38',
         'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffe0d0',
+        'circle-stroke-color': '#F2EDDF',
         'circle-opacity': 0.95
       }
     }, firstSymbol ? firstSymbol.id : undefined);
@@ -975,10 +979,10 @@ function loadFires() {
       new maplibregl.Popup({ offset: 12 })
         .setLngLat(e.lngLat)
         .setHTML('<div style="direction:rtl;text-align:right;font-family:inherit">' +
-          '<b>🔥 حريق غابة</b>' +
-          '<div style="font-size:11px;color:#6a6a6a;margin-top:4px">الشدة: ' + p.intensity +
+          '<b style="color:#1E2E3A">🔥 حريق غابة</b>' +
+          '<div style="font-size:11px;color:#415464;margin-top:4px">الشدة: ' + p.intensity +
           '<br>الوقت: ' + p.time + '</div>' +
-          '<div style="font-size:10px;color:#b85a5a;margin-top:4px">⚠️ بيانات محاكاة</div></div>')
+          '<div style="font-size:10px;color:#A88438;margin-top:4px">⚠️ بيانات محاكاة</div></div>')
         .addTo(map);
     });
     map.on('mouseenter', 'fires-layer', () => { map.getCanvas().style.cursor = 'pointer'; });
@@ -1027,11 +1031,11 @@ async function loadAirQuality(silent) {
       const data = await res.json();
       if (!data.current) return;
       const aqi = data.current.european_aqi;
-      let level = 'good', color = '#7a9a5a';
-      if (aqi > 80) { level = 'very_poor'; color = '#8a2a4a'; }
-      else if (aqi > 60) { level = 'poor'; color = '#b85a5a'; }
-      else if (aqi > 40) { level = 'moderate'; color = '#c89858'; }
-      else if (aqi > 20) { level = 'fair'; color = '#a8b858'; }
+      let level = 'good', color = '#176B52';
+      if (aqi > 80) { level = 'very_poor'; color = '#1A3A5E'; }
+      else if (aqi > 60) { level = 'poor'; color = '#244B78'; }
+      else if (aqi > 40) { level = 'moderate'; color = '#C5A45D'; }
+      else if (aqi > 20) { level = 'fair'; color = '#D4C895'; }
       features.push({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: p.c },
@@ -1067,7 +1071,7 @@ async function loadAirQuality(silent) {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 8, 10, 14, 14, 20],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 2.5,
-        'circle-stroke-color': '#ffffff',
+        'circle-stroke-color': '#F2EDDF',
         'circle-opacity': 0.9
       }
     }, firstSymbol ? firstSymbol.id : undefined);
@@ -1078,12 +1082,12 @@ async function loadAirQuality(silent) {
       new maplibregl.Popup({ offset: 12 })
         .setLngLat(e.lngLat)
         .setHTML('<div style="direction:rtl;text-align:right;font-family:inherit;min-width:160px">' +
-          '<b>🌫️ ' + p.name + '</b>' +
-          '<div style="font-size:12px;margin-top:6px">' +
+          '<b style="color:#1E2E3A">🌫️ ' + p.name + '</b>' +
+          '<div style="font-size:12px;margin-top:6px;color:#1E2E3A">' +
           '<div>AQI: <b style="color:' + p.color + '">' + p.aqi + '</b> — ' + (levelNames[p.level] || '') + '</div>' +
-          '<div style="font-size:11px;color:#6a6a6a;margin-top:2px">PM2.5: ' + p.pm25 + ' μg/m³</div>' +
-          '<div style="font-size:11px;color:#6a6a6a">PM10: ' + p.pm10 + ' μg/m³</div>' +
-          '<div style="font-size:9px;color:#9a9a9a;margin-top:4px">المصدر: Open-Meteo</div>' +
+          '<div style="font-size:11px;color:#415464;margin-top:2px">PM2.5: ' + p.pm25 + ' μg/m³</div>' +
+          '<div style="font-size:11px;color:#415464">PM10: ' + p.pm10 + ' μg/m³</div>' +
+          '<div style="font-size:9px;color:#7A8A98;margin-top:4px">المصدر: Open-Meteo</div>' +
           '</div></div>')
         .addTo(map);
     });
@@ -1165,7 +1169,7 @@ function buildProvinceLayersFromGeoJSON(gj) {
   map.addSource('provinces', { type: 'geojson', data: fc });
   map.addLayer({
     id: 'province-border', type: 'line', source: 'provinces',
-    paint: { 'line-color': T.boundary, 'line-width': 1.5, 'line-opacity': 0.7 }
+    paint: { 'line-color': T.boundary, 'line-width': 1.5, 'line-opacity': 0.75 }
   });
   map.addLayer({
     id: 'province-highlight', type: 'line', source: 'provinces',
@@ -1224,7 +1228,7 @@ function buildProvinceMarkers() {
     el.innerHTML = `<div style="
       background:var(--panel);border:1px solid var(--panel-border);
       border-radius:14px;padding:3px 9px;font-size:11px;font-weight:600;
-      color:var(--accent-2);box-shadow:0 2px 8px rgba(60,50,30,.12);
+      color:var(--accent-2);box-shadow:0 2px 8px rgba(30,46,58,.14);
       white-space:nowrap;transform:translate(-50%,-50%);">${p.ar}</div>`;
     el.addEventListener('click', ev => { ev.stopPropagation(); selectProvince(i); });
     p.marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(p.c).addTo(map);
@@ -1556,7 +1560,7 @@ async function loadWaterForViewport(silent) {
       }, beforeId);
       addLayerSafe({
         id: 'water-detail-line', type: 'line', source: 'water-detail',
-        paint: { 'line-color': T.waterLine, 'line-width': 1.2, 'line-opacity': 0.8 }
+        paint: { 'line-color': T.waterLine, 'line-width': 1.2, 'line-opacity': 0.85 }
       }, beforeId);
     }
   } catch (e) { console.warn('[Water]', e); }
@@ -1588,7 +1592,7 @@ async function loadParksForViewport(silent) {
       map.addSource('parks-detail', { type: 'geojson', data: fc });
       addLayerSafe({
         id: 'parks-detail-fill', type: 'fill', source: 'parks-detail',
-        paint: { 'fill-color': T.park, 'fill-opacity': 0.8, 'fill-outline-color': T.parkLine }
+        paint: { 'fill-color': T.park, 'fill-opacity': 0.82, 'fill-outline-color': T.parkLine }
       }, beforeId);
     }
   } catch (e) { console.warn('[Parks]', e); }
@@ -1677,8 +1681,8 @@ async function loadPois(category, silent) {
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 15, 8, 18, 11],
         'circle-color': T.poi[category],
-        'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff',
-        'circle-opacity': 0.9
+        'circle-stroke-width': 2, 'circle-stroke-color': '#F2EDDF',
+        'circle-opacity': 0.92
       }
     }, beforeId);
     map.on('click', srcId + '-circle', e => {
@@ -1690,11 +1694,11 @@ async function loadPois(category, silent) {
         .setHTML('<div style="font-family:inherit;text-align:right;direction:rtl">' +
           '<div style="font-weight:700;color:' + T.poi[category] + ';margin-bottom:4px">' +
           meta.emoji + ' ' + (p.name || meta.label) + '</div>' +
-          '<div style="font-size:11px;color:#6a6a6a">' + meta.label +
+          '<div style="font-size:11px;color:#415464">' + meta.label +
           (p.nameEn ? ' — ' + p.nameEn : '') + '</div>' +
           '<button onclick="window.__setDest(' + e.lngLat.lng + ',' + e.lngLat.lat + ')" ' +
           'style="margin-top:8px;padding:6px 10px;background:' + T.poi[category] +
-          ';color:#fff;border:0;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">' +
+          ';color:#F2EDDF;border:0;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">' +
           '🧭 مسار إلى هنا</button></div>')
         .addTo(map);
     });
@@ -1802,7 +1806,7 @@ function drawAllRoutes(routes) {
     addLayerSafe({
       id: srcId + '-casing', type: 'line', source: srcId,
       layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': T.road.motorway, 'line-width': isPrimary ? 10 : 7, 'line-opacity': isPrimary ? 0.95 : 0.7 }
+      paint: { 'line-color': T.textHalo, 'line-width': isPrimary ? 10 : 7, 'line-opacity': isPrimary ? 0.95 : 0.7 }
     }, beforeId);
     addLayerSafe({
       id: srcId + '-line', type: 'line', source: srcId,
@@ -2072,7 +2076,7 @@ function handleMeasureClick(lngLat) {
   if (!state.measureStart) {
     state.measureStart = lngLat;
     const el = document.createElement('div');
-    el.style.cssText = 'width:14px;height:14px;background:' + T.accent + ';border:2px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+    el.style.cssText = 'width:14px;height:14px;background:' + T.accent + ';border:2px solid #F2EDDF;border-radius:50%;box-shadow:0 2px 8px rgba(30,46,58,.3)';
     const m = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(lngLat).addTo(map);
     state.measureMarkers.push(m);
     $('measure-hint').textContent = '📏 انقر على النقطة الثانية';
@@ -2083,7 +2087,7 @@ function handleMeasureClick(lngLat) {
   const end = { lng: lngLat.lng, lat: lngLat.lat };
   const dist = haversine(start, end);
   const el2 = document.createElement('div');
-  el2.style.cssText = 'width:14px;height:14px;background:#b85a5a;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+  el2.style.cssText = 'width:14px;height:14px;background:#1A3A5E;border:2px solid #F2EDDF;border-radius:50%;box-shadow:0 2px 8px rgba(30,46,58,.3)';
   const m2 = new maplibregl.Marker({ element: el2, anchor: 'center' }).setLngLat(end).addTo(map);
   state.measureMarkers.push(m2);
   map.addSource('measure-line', {
@@ -2092,7 +2096,7 @@ function handleMeasureClick(lngLat) {
   });
   map.addLayer({
     id: 'measure-line', type: 'line', source: 'measure-line',
-    paint: { 'line-color': '#b85a5a', 'line-width': 3, 'line-dasharray': [2, 1.5], 'line-opacity': 0.9 }
+    paint: { 'line-color': '#244B78', 'line-width': 3, 'line-dasharray': [2, 1.5], 'line-opacity': 0.9 }
   });
   const mid = [(start.lng + end.lng) / 2, (start.lat + end.lat) / 2];
   const distStr = dist >= 1 ? dist.toFixed(2) + ' كم' : (dist * 1000).toFixed(0) + ' م';
@@ -2102,12 +2106,12 @@ function handleMeasureClick(lngLat) {
   });
   map.addLayer({
     id: 'measure-label-bg', type: 'circle', source: 'measure-label',
-    paint: { 'circle-color': '#b85a5a', 'circle-radius': 18, 'circle-opacity': 0.95 }
+    paint: { 'circle-color': '#244B78', 'circle-radius': 18, 'circle-opacity': 0.95 }
   });
   map.addLayer({
     id: 'measure-label', type: 'symbol', source: 'measure-label',
     layout: { 'text-field': ['get', 'label'], 'text-size': 11, 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'] },
-    paint: { 'text-color': '#ffffff' }
+    paint: { 'text-color': '#F2EDDF' }
   });
   toast('📏 المسافة: ' + distStr, 5000);
   $('measure-hint').textContent = '📏 انقر مرة أخرى لقياس مسافة جديدة';
@@ -2522,7 +2526,6 @@ function bindUI() {
     if (btn) btn.addEventListener('click', () => togglePoiCategory(cat));
   });
 
-  // AI UI - يتم تفويضها إلى ai-assistant.js
   $('ai-fab').addEventListener('click', () => {
     if (window.AIAssistant) window.AIAssistant.open();
   });
